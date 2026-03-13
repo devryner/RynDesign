@@ -2,7 +2,7 @@ import { defineCommand } from 'citty';
 import pc from 'picocolors';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { buildTokenSet } from '@ryndesign/core';
+import { buildTokenSet, loadComponents, resolveComponent, createGeneratorHelpers } from '@ryndesign/core';
 import { loadConfig } from '../config.js';
 import type { GeneratedFile, GeneratorPlugin } from '@ryndesign/plugin-api';
 
@@ -77,6 +77,15 @@ export default defineCommand({
       return;
     }
 
+    // Load and resolve components
+    const components = config.components
+      ? await loadComponents(config.components, cwd)
+      : [];
+
+    if (components.length > 0) {
+      console.log(pc.green(`✓ Loaded ${components.length} component(s)`));
+    }
+
     // Run generators
     const allFiles: GeneratedFile[] = [];
     for (const generator of generators) {
@@ -86,20 +95,33 @@ export default defineCommand({
         tokenSet,
         config: { outDir: config.outDir ?? 'generated', ...generator },
         outputDir: path.resolve(cwd, config.outDir ?? 'generated'),
-        helpers: createHelpers(),
+        helpers: createGeneratorHelpers(),
       };
 
+      // Generate tokens
       const tokenFiles = await generator.generateTokens(ctx);
       allFiles.push(...tokenFiles);
 
-      // Write files
       for (const file of tokenFiles) {
         const filePath = path.resolve(ctx.outputDir, file.path);
         await fs.mkdir(path.dirname(filePath), { recursive: true });
         await fs.writeFile(filePath, file.content, 'utf-8');
       }
 
-      console.log(pc.green(`  ✓ ${tokenFiles.length} files generated for ${generator.displayName}`));
+      // Generate components
+      for (const compDef of components) {
+        const resolvedComp = resolveComponent(compDef, tokenSet);
+        const compFiles = await generator.generateComponent(resolvedComp, ctx);
+        allFiles.push(...compFiles);
+
+        for (const file of compFiles) {
+          const filePath = path.resolve(ctx.outputDir, file.path);
+          await fs.mkdir(path.dirname(filePath), { recursive: true });
+          await fs.writeFile(filePath, file.content, 'utf-8');
+        }
+      }
+
+      console.log(pc.green(`  ✓ ${tokenFiles.length + components.length} files generated for ${generator.displayName}`));
     }
 
     // Run hooks
@@ -136,14 +158,3 @@ export default defineCommand({
   },
 });
 
-function createHelpers() {
-  return {
-    camelCase: (str: string) => str.replace(/[-_](\w)/g, (_, c) => c.toUpperCase()),
-    pascalCase: (str: string) => str.replace(/(^|[-_])(\w)/g, (_, __, c) => c.toUpperCase()),
-    kebabCase: (str: string) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase().replace(/[_\s]+/g, '-'),
-    snakeCase: (str: string) => str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase().replace(/[-\s]+/g, '_'),
-    tokenToCssVar: (path: string[]) => `--${path.join('-')}`,
-    tokenToScssVar: (path: string[]) => `$${path.join('-')}`,
-    formatColor: (hex: string, format: 'hex' | 'rgb' | 'hsl') => hex,
-  };
-}

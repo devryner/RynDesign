@@ -14,12 +14,6 @@ importers:
       '@types/node':
         specifier: ^25.5.0
         version: 25.5.0
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.0.0
-        version: 8.57.0(@typescript-eslint/parser@8.57.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4))(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4)
-      '@typescript-eslint/parser':
-        specifier: ^8.0.0
-        version: 8.57.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4)
       '@vitest/coverage-v8':
         specifier: ^2.1.0
         version: 2.1.9(vitest@2.1.9(@types/node@25.5.0))
@@ -38,6 +32,9 @@ importers:
       typescript:
         specifier: ~5.5.0
         version: 5.5.4
+      typescript-eslint:
+        specifier: ^8.0.0
+        version: 8.57.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4)
       vitest:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@25.5.0)
@@ -129,6 +126,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -145,6 +145,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -161,6 +164,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -177,6 +183,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -193,6 +202,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -209,6 +221,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -225,6 +240,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -241,6 +259,9 @@ importers:
         specifier: workspace:*
         version: link:../plugin-api
     devDependencies:
+      '@ryndesign/core':
+        specifier: workspace:*
+        version: link:../core
       tsup:
         specifier: ^8.3.0
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.5.4)
@@ -2110,6 +2131,13 @@ packages:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
     engines: {node: '>= 0.8.0'}
 
+  typescript-eslint@8.57.0:
+    resolution: {integrity: sha512-W8GcigEMEeB07xEZol8oJ26rigm3+bfPHxHvwbYUlu1fUDsGuQ7Hiskx5xGW/xM4USc9Ephe3jtv7ZYPQntHeA==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+      typescript: '>=4.8.4 <6.0.0'
+
   typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
     engines: {node: '>=14.17'}
@@ -3966,6 +3994,17 @@ snapshots:
   type-check@0.4.0:
     dependencies:
       prelude-ls: 1.2.1
+
+  typescript-eslint@8.57.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4):
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 8.57.0(@typescript-eslint/parser@8.57.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4))(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4)
+      '@typescript-eslint/parser': 8.57.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4)
+      '@typescript-eslint/typescript-estree': 8.57.0(typescript@5.5.4)
+      '@typescript-eslint/utils': 8.57.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.5.4)
+      eslint: 9.39.4(jiti@2.6.1)
+      typescript: 5.5.4
+    transitivePeerDependencies:
+      - supports-color
 
   typescript@5.5.4: {}
 

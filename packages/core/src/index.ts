@@ -1,5 +1,11 @@
+// Generator Helpers
+export { createGeneratorHelpers, type GeneratorHelpers } from './helpers.js';
+
 // Pipeline
 export { buildTokenSet, type BuildConfig } from './pipeline.js';
+
+// Component Loader
+export { loadComponents, resolveComponent } from './component-loader.js';
 
 // Parser
 export { readTokenFile, readAndMergeTokenFiles, deepMerge, type RawTokenTree } from './parser/reader.js';
@@ -30,7 +36,6 @@ export type {
   GeneratorContext,
   GeneratedFile,
   GeneratorConfig,
-  GeneratorHelpers,
   PreviewAdapter,
   ComponentDefinition,
   ResolvedComponent,

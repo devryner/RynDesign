@@ -12,5 +12,7 @@ export const main = defineCommand({
     validate: () => import('./validate.js').then(m => m.default),
     preview: () => import('./preview.js').then(m => m.default),
     add: () => import('./add.js').then(m => m.default),
+    figma: () => import('./figma.js').then(m => m.default),
+    eject: () => import('./eject.js').then(m => m.default),
   },
 });
