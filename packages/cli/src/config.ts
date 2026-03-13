@@ -13,13 +13,12 @@ export async function loadConfig(configPath: string = 'ryndesign.config.ts'): Pr
   }
 
   try {
-    const jiti = await import('jiti').then(m => m.default || m);
-    const loader = jiti(absolutePath, {
+    const { createJiti } = await import('jiti');
+    const loader = createJiti(absolutePath, {
       interopDefault: true,
-      esmResolve: true,
     });
-    const config = await loader(absolutePath);
-    return config.default ?? config;
+    const config = await loader.import(absolutePath) as Record<string, unknown>;
+    return (config.default ?? config) as RynDesignConfig;
   } catch (err) {
     // Fallback: try dynamic import
     try {

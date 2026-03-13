@@ -60,7 +60,10 @@ export async function startPreviewServer(options: PreviewServerOptions = {}): Pr
     console.log(`  ➜ WS:      ws://localhost:${port}/\n`);
 
     if (options.open) {
-      import('open').then(m => m.default(`http://localhost:${port}/`)).catch(() => {});
+      import('child_process').then(cp => {
+        const cmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
+        cp.exec(`${cmd} http://localhost:${port}/`);
+      }).catch(() => {});
     }
   });
 

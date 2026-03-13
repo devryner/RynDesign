@@ -1,4 +1,4 @@
-import { FigmaClient, type FigmaVariableChanges, type FigmaColor } from '../api-client.js';
+import { FigmaClient, type FigmaVariableChanges, type FigmaColor, type FigmaVariableValue } from '../api-client.js';
 import type { ResolvedToken } from '@ryndesign/plugin-api';
 
 export interface PushOptions {
@@ -141,7 +141,7 @@ function tokenTypeToFigmaType(type: string): string | null {
   }
 }
 
-function tokenValueToFigma(token: ResolvedToken): unknown {
+function tokenValueToFigma(token: ResolvedToken): FigmaVariableValue {
   const value = token.$value;
   switch (value.type) {
     case 'color':
