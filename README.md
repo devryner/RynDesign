@@ -370,40 +370,40 @@ ryndesign eject react         # React 제너레이터 코드를 ./generators/rea
 
 ## 제너레이터
 
-### React
+10개의 플랫폼별 제너레이터를 제공합니다.
+
+| 제너레이터 | 플랫폼 | 패키지 |
+|-----------|--------|--------|
+| React (TSX + CSS) | Web | `@ryndesign/generator-react` |
+| Vue (SFC) | Web | `@ryndesign/generator-vue` |
+| Svelte | Web | `@ryndesign/generator-svelte` |
+| Rails (ViewComponent) | Web | `@ryndesign/generator-rails` |
+| CSS/SCSS | Web | `@ryndesign/generator-css` |
+| Tailwind CSS | Web | `@ryndesign/generator-tailwind` |
+| SwiftUI | iOS | `@ryndesign/generator-swiftui` |
+| UIKit | iOS | `@ryndesign/generator-uikit` |
+| Jetpack Compose | Android | `@ryndesign/generator-compose` |
+| Android View (XML) | Android | `@ryndesign/generator-android-view` |
+
+### 사용 예시
 
 ```typescript
 import { reactGenerator } from '@ryndesign/generator-react';
-
-reactGenerator({
-  typescript: true,           // TSX 생성 (기본: true)
-  cssModules: false,          // CSS Modules 사용
-  darkMode: 'media+class',   // 다크모드 방식: 'media', 'class', 'media+class'
-})
-```
-
-생성 파일:
-- `tokens/css-variables.css` — CSS 커스텀 프로퍼티
-- `tokens/variables.scss` — SCSS 변수
-- `tokens/theme.ts` — TypeScript 토큰 객체
-- `components/Button.tsx` — React 컴포넌트 (forwardRef, variant props)
-- `components/Button.css` — 컴포넌트 스타일 (variant/size/state 클래스)
-
-### SwiftUI
-
-```typescript
 import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
+import { cssGenerator } from '@ryndesign/generator-css';
+import { tailwindGenerator } from '@ryndesign/generator-tailwind';
 
-swiftuiGenerator({
-  darkMode: 'dynamic-color',  // 다크모드 방식: 'asset-catalog', 'dynamic-color'
-})
+export default defineConfig({
+  generators: [
+    reactGenerator({ typescript: true, darkMode: 'media+class' }),
+    swiftuiGenerator({ darkMode: 'dynamic-color' }),
+    cssGenerator({ scss: true, prefix: 'ds' }),
+    tailwindGenerator({ configFormat: 'ts' }),
+  ],
+});
 ```
 
-생성 파일:
-- `tokens/DesignSystem+Color.swift` — Color extension
-- `tokens/DesignSystem+Spacing.swift` — Spacing enum
-- `tokens/DesignSystem+Typography.swift` — Typography enum
-- `components/DSButton.swift` — SwiftUI View (variant/size enum, computed properties)
+각 제너레이터의 상세 옵션과 생성 파일 목록은 [docs/generators.md](./docs/generators.md)를 참조하세요.
 
 ---
 
@@ -441,14 +441,30 @@ swiftuiGenerator({
 | `@ryndesign/core` | 토큰 파싱, alias 해석, 컴포넌트 로딩, 검증 |
 | `@ryndesign/plugin-api` | 제너레이터 플러그인 인터페이스, 타입 정의 |
 | `@ryndesign/generator-react` | React (TSX + CSS) 코드 생성 |
+| `@ryndesign/generator-vue` | Vue (SFC) 코드 생성 |
+| `@ryndesign/generator-svelte` | Svelte 코드 생성 |
+| `@ryndesign/generator-rails` | Rails (ViewComponent + SCSS) 코드 생성 |
 | `@ryndesign/generator-swiftui` | SwiftUI (Swift) 코드 생성 |
-| `@ryndesign/generator-android` | Android (Compose + XML) 코드 생성 |
-| `@ryndesign/generator-flutter` | Flutter (Dart) 코드 생성 |
+| `@ryndesign/generator-uikit` | UIKit (Swift) 코드 생성 |
+| `@ryndesign/generator-compose` | Jetpack Compose (Kotlin) 코드 생성 |
+| `@ryndesign/generator-android-view` | Android View (Kotlin + XML) 코드 생성 |
 | `@ryndesign/generator-css` | CSS/SCSS 토큰 코드 생성 |
 | `@ryndesign/generator-tailwind` | Tailwind CSS 설정 생성 |
 | `@ryndesign/figma` | Figma Variables API 연동 |
 | `@ryndesign/preview` | 실시간 프리뷰 서버 (Vite + WebSocket) |
-| `@ryndesign/tokens` | 공유 토큰 타입 정의 |
+
+---
+
+## 문서
+
+| 문서 | 설명 |
+|------|------|
+| [설정 레퍼런스](./docs/configuration.md) | `ryndesign.config.ts` 전체 필드 스펙 |
+| [토큰 스펙](./docs/token-spec.md) | W3C Design Token 형식, 지원 타입, alias, 테마 |
+| [컴포넌트 정의 스펙](./docs/component-spec.md) | 컴포넌트 JSON 형식, variants, tokenMapping, states |
+| [제너레이터](./docs/generators.md) | 10개 제너레이터 옵션, 생성 파일, 커스텀 제너레이터 작성법 |
+| [CLI 레퍼런스](./docs/cli.md) | 전체 CLI 명령어 및 옵션 |
+| [Figma 연동](./docs/figma-integration.md) | pull/push/diff, 병합 전략, 워크플로우 |
 
 ---
 

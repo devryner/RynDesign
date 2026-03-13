@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Project Is
 
-RynDesign is a **multi-platform design system generator**: a single W3C Design Token source produces platform-specific code (React, SwiftUI, Vue, Svelte, Rails, UIKit, Compose, Android View). It's a pnpm monorepo with 13 packages orchestrated by Turborepo.
+RynDesign is a **multi-platform design system generator**: a single W3C Design Token source produces platform-specific code (React, SwiftUI, Vue, Svelte, Rails, UIKit, Compose, Android View, CSS/SCSS, Tailwind). It's a pnpm monorepo with 15 packages orchestrated by Turborepo.
 
 ## Commands
 
@@ -38,7 +38,7 @@ plugin-api  (types only: no runtime deps)
     ↓
    core     (token pipeline, component resolution)
     ↓
-generators (react, swiftui, vue, svelte, rails, uikit, compose, android-view)
+generators (react, swiftui, vue, svelte, rails, uikit, compose, android-view, css, tailwind)
     ↓
 cli + preview + figma  (user-facing tools)
 ```
@@ -104,3 +104,20 @@ All shared types live in `packages/plugin-api/src/`. Core re-exports them for co
 - Each package has its own `tsup.config.ts` for bundling and `tsconfig.json` extending `../../tsconfig.base.json`
 - Token template fixtures in `/templates/`, component fixtures in `/components/` — tests reference these via `path.resolve(__dirname, '../../../../templates')`
 - All `.js` extension imports in source (e.g., `./pipeline.js`) — required by ESM resolution even though source is `.ts`
+
+## Documentation
+
+Detailed docs are in `/docs/`:
+- `configuration.md` — Full config file spec (`ryndesign.config.ts`)
+- `token-spec.md` — W3C Design Token format, supported types, aliases, themes
+- `component-spec.md` — Component definition JSON spec (props, variants, tokenMapping, states)
+- `generators.md` — All 10 generators with options, output files, and custom generator authoring
+- `cli.md` — Complete CLI command reference
+- `figma-integration.md` — Figma pull/push/diff, merge strategies, workflows
+
+## Figma Integration
+
+`packages/figma/` provides bidirectional sync with Figma Variables API:
+- **pull**: Fetches Figma Variables → converts to W3C tokens → supports `--merge` with 3 strategies (`prefer-remote`, `prefer-local`, `remote-only-new`)
+- **push**: Uploads local tokens → creates/updates Figma Variables with mode support
+- **diff**: Compares local tokens vs Figma Variables, reports added/modified/removed
