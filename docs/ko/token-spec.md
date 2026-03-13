@@ -1,23 +1,21 @@
-# Token Spec
+# 토큰 스펙
 
-RynDesign's token file specification, based on the W3C Design Token Format.
+W3C Design Token Format을 기반으로 한 RynDesign의 토큰 파일 명세입니다.
 
-**[한국어](./ko/token-spec.md)**
+## 파일 형식
 
-## File Format
-
-JSON files with `.tokens.json` extension (recommended).
+JSON 파일이며, 확장자는 `.tokens.json`을 권장합니다.
 
 ```
 tokens/
-├── base.tokens.json       # Base tokens
-├── dark.tokens.json       # Dark theme overrides
-└── brand.tokens.json      # Brand-specific tokens (optional)
+├── base.tokens.json       # 기본 토큰
+├── dark.tokens.json       # 다크 테마 오버라이드
+└── brand.tokens.json      # 브랜드 전용 토큰 (선택)
 ```
 
-## Basic Structure
+## 기본 구조
 
-Each token has a `$value` and optionally `$type` and `$description`.
+각 토큰은 `$value`와 선택적으로 `$type`, `$description`을 가집니다.
 
 ```json
 {
@@ -31,9 +29,9 @@ Each token has a `$value` and optionally `$type` and `$description`.
 }
 ```
 
-## Type Inheritance
+## 타입 상속
 
-Setting `$type` at the group level automatically inherits to all child tokens.
+그룹 레벨에 `$type`을 지정하면 하위 모든 토큰에 자동 상속됩니다.
 
 ```json
 {
@@ -46,11 +44,11 @@ Setting `$type` at the group level automatically inherits to all child tokens.
 }
 ```
 
-All of `spacing.sm`, `spacing.md`, `spacing.lg` are `dimension` type.
+위 예시에서 `spacing.sm`, `spacing.md`, `spacing.lg`는 모두 `dimension` 타입입니다.
 
-## Alias References
+## Alias 참조
 
-Use `{path.to.token}` syntax to reference other tokens. Multi-level chains are resolved automatically.
+`{경로.이름}` 문법으로 다른 토큰을 참조합니다. 다단계 체인도 자동 해석됩니다.
 
 ```json
 {
@@ -64,7 +62,7 @@ Use `{path.to.token}` syntax to reference other tokens. Multi-level chains are r
 }
 ```
 
-**Multi-level chain example:**
+**다단계 체인 예시:**
 
 ```json
 {
@@ -74,11 +72,11 @@ Use `{path.to.token}` syntax to reference other tokens. Multi-level chains are r
 }
 ```
 
-`color.button.primary.bg` → `color.primary` → `color.brand` → `#3B82F6`
+`color.button.primary.bg` → `color.primary` → `color.brand` → `#3B82F6`으로 자동 해석됩니다.
 
-**Note:** Circular references are detected as errors during build.
+**주의:** 순환 참조는 빌드 시 에러로 감지됩니다.
 
-## Supported Types
+## 지원 타입
 
 ### `color`
 
@@ -88,7 +86,7 @@ Use `{path.to.token}` syntax to reference other tokens. Multi-level chains are r
 { "$value": "rgba(59, 130, 246, 0.5)" }
 ```
 
-Resolved as `ColorValue`:
+해석 후 `ColorValue`:
 
 ```typescript
 {
@@ -106,7 +104,7 @@ Resolved as `ColorValue`:
 { "$value": "0px" }
 ```
 
-Resolved as `DimensionValue`:
+해석 후 `DimensionValue`:
 
 ```typescript
 {
@@ -122,7 +120,7 @@ Resolved as `DimensionValue`:
 { "$value": "Inter, sans-serif" }
 ```
 
-Resolved as `FontFamilyValue`:
+해석 후 `FontFamilyValue`:
 
 ```typescript
 {
@@ -138,13 +136,13 @@ Resolved as `FontFamilyValue`:
 { "$value": 700 }
 ```
 
-Resolved as `FontWeightValue`:
+해석 후 `FontWeightValue`:
 
 ```typescript
 {
   type: 'fontWeight',
   value: 400,
-  keyword: 'normal'  // auto-mapped
+  keyword: 'normal'  // 자동 매핑
 }
 ```
 
@@ -155,7 +153,7 @@ Resolved as `FontWeightValue`:
 { "$value": "0.5s" }
 ```
 
-Resolved as `DurationValue`:
+해석 후 `DurationValue`:
 
 ```typescript
 {
@@ -172,7 +170,7 @@ Resolved as `DurationValue`:
 { "$value": 0 }
 ```
 
-Resolved as `NumberValue`:
+해석 후 `NumberValue`:
 
 ```typescript
 {
@@ -195,6 +193,19 @@ Resolved as `NumberValue`:
 }
 ```
 
+해석 후 `ShadowValue`:
+
+```typescript
+{
+  type: 'shadow',
+  color: { hex: '#0000001A', r: 0, g: 0, b: 0, a: 0.1 },
+  offsetX: { value: 0, unit: 'px' },
+  offsetY: { value: 4, unit: 'px' },
+  blur: { value: 6, unit: 'px' },
+  spread: { value: -1, unit: 'px' }
+}
+```
+
 ### `border`
 
 ```json
@@ -207,7 +218,7 @@ Resolved as `NumberValue`:
 }
 ```
 
-Alias references can also be used inside composite type fields.
+alias 참조도 내부 필드에서 사용할 수 있습니다.
 
 ### `typography`
 
@@ -221,6 +232,8 @@ Alias references can also be used inside composite type fields.
   }
 }
 ```
+
+복합 타입 내부에서도 alias 참조가 가능합니다.
 
 ### `gradient`
 
@@ -255,11 +268,11 @@ Alias references can also be used inside composite type fields.
 }
 ```
 
-## Metadata Fields
+## 메타데이터 필드
 
 ### `$description`
 
-Description of the token.
+토큰에 대한 설명입니다.
 
 ```json
 {
@@ -272,7 +285,7 @@ Description of the token.
 
 ### `$deprecated`
 
-Deprecation flag. Can be boolean or a string suggesting an alternative.
+사용 중단 표시입니다. 불리언 또는 대안을 안내하는 문자열을 사용합니다.
 
 ```json
 {
@@ -285,7 +298,7 @@ Deprecation flag. Can be boolean or a string suggesting an alternative.
 
 ### `$extensions`
 
-Platform-specific extension data.
+플랫폼별 확장 데이터를 저장합니다.
 
 ```json
 {
@@ -299,9 +312,9 @@ Platform-specific extension data.
 }
 ```
 
-## Theme Override Files
+## 테마 오버라이드 파일
 
-Theme files only define the tokens that differ from the default.
+테마 파일은 기본 토큰 중 변경할 부분만 정의합니다.
 
 ```json
 {
@@ -326,15 +339,15 @@ Theme files only define the tokens that differ from the default.
 }
 ```
 
-**Rules:**
-- Theme name is specified via `$extensions.com.ryndesign.theme.name`
-- `extends` specifies the base theme (optional)
-- Tokens not overridden retain their default theme values
-- Alias references are resolved against the full base token set
+**규칙:**
+- `$extensions.com.ryndesign.theme.name`으로 테마 이름을 지정합니다
+- `extends`로 기본 테마를 지정합니다 (선택)
+- 오버라이드하지 않은 토큰은 기본 테마의 값이 유지됩니다
+- alias 참조는 기본 토큰 세트 전체에서 해석됩니다
 
-## Component Token Pattern
+## 컴포넌트 토큰 패턴
 
-Tokens used by components should follow the `component.{name}` namespace convention.
+컴포넌트에서 사용하는 토큰은 `component.{name}` 네임스페이스를 권장합니다.
 
 ```json
 {
@@ -346,6 +359,9 @@ Tokens used by components should follow the `component.{name}` namespace convent
         "text": { "$value": "{color.white}" },
         "hover": {
           "background": { "$value": "#2563EB" }
+        },
+        "pressed": {
+          "background": { "$value": "#1D4ED8" }
         }
       },
       "secondary": {
@@ -364,24 +380,33 @@ Tokens used by components should follow the `component.{name}` namespace convent
         "paddingX": { "$value": "{spacing.md}" },
         "paddingY": { "$value": "{spacing.sm}" },
         "fontSize": { "$value": "{fontSize.md}" }
+      },
+      "lg": {
+        "$type": "dimension",
+        "paddingX": { "$value": "{spacing.lg}" },
+        "paddingY": { "$value": "{spacing.md}" },
+        "fontSize": { "$value": "{fontSize.lg}" }
+      },
+      "disabled": {
+        "background": { "$value": "{color.gray.200}" }
       }
     }
   }
 }
 ```
 
-## Validation
+## 검증
 
-Use `ryndesign validate` to validate token files.
+`ryndesign validate` 명령으로 토큰 파일을 검증할 수 있습니다.
 
-Checks:
-- JSON syntax errors
-- Circular reference detection
-- Unresolved alias references (`{...}` patterns)
-- `$value` type vs `$type` mismatch
-- Theme completeness (warnings for missing overrides in non-default themes)
+검증 항목:
+- JSON 문법 오류
+- 순환 참조 감지
+- 미해석 alias 잔존 (`{...}` 패턴)
+- `$value` 타입과 `$type` 불일치
+- 테마 완전성 (비-default 테마에 누락된 오버라이드 경고)
 
 ```bash
-ryndesign validate              # Standard validation
-ryndesign validate --strict     # Treat warnings as errors
+ryndesign validate              # 기본 검증
+ryndesign validate --strict     # 경고를 에러로 처리
 ```

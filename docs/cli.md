@@ -1,98 +1,100 @@
-# CLI 레퍼런스
+# CLI Reference
 
-`@ryndesign/cli`의 전체 명령어 레퍼런스입니다.
+Complete command reference for `@ryndesign/cli`.
 
-## 설치
+**[한국어](./ko/cli.md)**
+
+## Installation
 
 ```bash
 npm install -g @ryndesign/cli
-# 또는
+# or
 pnpm add -g @ryndesign/cli
 ```
 
-## 명령어 목록
+## Commands
 
-| 명령어 | 설명 |
-|--------|------|
-| `init` | 프로젝트 초기화 |
-| `generate` | 코드 생성 |
-| `validate` | 토큰 검증 |
-| `preview` | 프리뷰 서버 |
-| `add` | 컴포넌트 추가 |
-| `figma pull` | Figma에서 가져오기 |
-| `figma push` | Figma로 내보내기 |
-| `figma diff` | Figma 차이 비교 |
-| `eject` | 제너레이터 코드 복사 |
+| Command | Description |
+|---------|-------------|
+| `init` | Initialize a new project |
+| `generate` | Generate code |
+| `validate` | Validate tokens |
+| `preview` | Start preview server |
+| `add` | Add a component |
+| `figma pull` | Pull from Figma |
+| `figma push` | Push to Figma |
+| `figma diff` | Compare with Figma |
+| `eject` | Copy generator source |
 
 ---
 
 ## `ryndesign init`
 
-새 프로젝트를 초기화합니다.
+Initialize a new project.
 
 ```bash
 ryndesign init
 ```
 
-대화형 프롬프트:
-1. 프로젝트 이름 입력
-2. 플랫폼 선택 (React, SwiftUI, Vue, Svelte, Rails, Android 등)
-3. 기본 템플릿 선택 (minimal / full)
+Interactive prompts:
+1. Project name
+2. Platform selection (React, SwiftUI, Vue, Svelte, Rails, Android, etc.)
+3. Template selection (minimal / full)
 
-**생성되는 파일:**
+**Generated Files:**
 
 ```
-├── ryndesign.config.ts      # 설정 파일
+├── ryndesign.config.ts      # Configuration file
 ├── tokens/
-│   └── base.tokens.json     # 기본 토큰
+│   └── base.tokens.json     # Base tokens
 ├── components/
-│   └── button.component.json # 샘플 컴포넌트
-└── generated/               # 코드 생성 출력 (gitignore됨)
+│   └── button.component.json # Sample component
+└── generated/               # Code generation output (gitignored)
 ```
 
-**추가 작업:**
-- `.gitignore`에 `generated/` 추가
-- `package.json`에 `generate`, `preview` 스크립트 추가
+**Additional actions:**
+- Adds `generated/` to `.gitignore`
+- Adds `generate` and `preview` scripts to `package.json`
 
 ---
 
 ## `ryndesign generate`
 
-토큰과 컴포넌트에서 플랫폼별 코드를 생성합니다.
+Generate platform-specific code from tokens and components.
 
 ```bash
 ryndesign generate [options]
 ```
 
-| 옵션 | 축약 | 설명 | 기본값 |
-|------|------|------|--------|
-| `--config` | `-c` | 설정 파일 경로 | 자동 탐색 |
-| `--platform` | `-p` | 특정 플랫폼만 생성 | 전체 |
-| `--watch` | `-w` | 파일 변경 시 자동 재생성 | false |
-| `--dry-run` | | 실제 파일 생성 없이 결과 표시 | false |
-| `--clean` | | 생성 전 출력 디렉토리 정리 | false |
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--config` | `-c` | Config file path | Auto-detect |
+| `--platform` | `-p` | Generate for specific platform only | All |
+| `--watch` | `-w` | Watch for changes and regenerate | false |
+| `--dry-run` | | Show results without writing files | false |
+| `--clean` | | Clean output directory before generating | false |
 
 ```bash
-# 전체 생성
+# Generate all
 ryndesign generate
 
-# React만 생성
+# React only
 ryndesign generate --platform react
 
-# SwiftUI만 생성
+# SwiftUI only
 ryndesign generate --platform swiftui
 
-# 워치 모드 (토큰/컴포넌트 변경 시 자동 재생성)
+# Watch mode (auto-regenerate on token/component changes)
 ryndesign generate --watch
 
-# 드라이런 (파일 목록만 표시)
+# Dry run (show file list only)
 ryndesign generate --dry-run
 
-# 커스텀 설정 파일
+# Custom config file
 ryndesign generate --config ./config/ryndesign.config.ts
 ```
 
-**출력 구조:**
+**Output Structure:**
 
 ```
 generated/
@@ -119,160 +121,147 @@ generated/
 
 ## `ryndesign validate`
 
-토큰 파일의 유효성을 검사합니다.
+Validate token files.
 
 ```bash
 ryndesign validate [options]
 ```
 
-| 옵션 | 축약 | 설명 | 기본값 |
-|------|------|------|--------|
-| `--config` | `-c` | 설정 파일 경로 | 자동 탐색 |
-| `--strict` | | 경고를 에러로 처리 | false |
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--config` | `-c` | Config file path | Auto-detect |
+| `--strict` | | Treat warnings as errors | false |
 
 ```bash
-# 기본 검증
+# Standard validation
 ryndesign validate
 
-# 엄격 모드 (CI에서 사용)
+# Strict mode (for CI)
 ryndesign validate --strict
 ```
 
-**검증 항목:**
+**Validation Checks:**
 
-| 검증 | 수준 | 설명 |
-|------|------|------|
-| JSON 파싱 | Error | 문법 오류 |
-| 순환 참조 | Error | `A → B → A` 패턴 감지 |
-| 미해석 alias | Error | `{...}` 패턴이 남아있는 경우 |
-| 타입 불일치 | Error | `$value` 타입과 `$type` 불일치 |
-| null 값 | Error | 해석된 토큰의 `$value`가 null |
-| 테마 누락 | Warning | 비-default 테마에 오버라이드 없는 토큰 |
-
-**출력 예시:**
-
-```
-Validation Results:
-  ✓ 156 tokens parsed
-  ✓ 12 groups found
-  ✓ No circular references
-  ⚠ 3 warnings:
-    - Theme "dark" missing override for "shadow.lg"
-    - Theme "dark" missing override for "border.default"
-    - Token "color.deprecated" is marked as deprecated
-```
+| Check | Level | Description |
+|-------|-------|-------------|
+| JSON parsing | Error | Syntax errors |
+| Circular references | Error | `A → B → A` pattern detection |
+| Unresolved aliases | Error | Remaining `{...}` patterns |
+| Type mismatch | Error | `$value` type doesn't match `$type` |
+| Null values | Error | Resolved token `$value` is null |
+| Missing theme overrides | Warning | Non-default theme missing overrides |
 
 ---
 
 ## `ryndesign preview`
 
-실시간 프리뷰 서버를 시작합니다.
+Start the live preview server.
 
 ```bash
 ryndesign preview [options]
 ```
 
-| 옵션 | 축약 | 설명 | 기본값 |
-|------|------|------|--------|
-| `--config` | `-c` | 설정 파일 경로 | 자동 탐색 |
-| `--port` | | 포트 번호 | 4400 |
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--config` | `-c` | Config file path | Auto-detect |
+| `--port` | | Port number | 4400 |
 
 ```bash
 ryndesign preview
 ryndesign preview --port 3000
 ```
 
-**기능:**
-- 컴포넌트 목록 탐색 및 선택
-- 모든 variant x size 조합 그리드 미리보기
-- 라이트/다크 테마 전환 및 비교
-- React / SwiftUI 코드 스니펫 확인 및 복사
-- 토큰 실시간 편집 (color picker, 수치 입력 등)
-- WebSocket 기반 실시간 업데이트
+**Features:**
+- Browse and select components
+- Preview all variant x size combinations in a grid
+- Switch between light/dark themes
+- View and copy React / SwiftUI code snippets
+- Edit tokens in real time (color picker, numeric inputs, etc.)
+- WebSocket-based live updates
 
 ---
 
 ## `ryndesign add`
 
-컴포넌트 정의 템플릿을 추가합니다.
+Add a component definition template.
 
 ```bash
 ryndesign add <component> [options]
 ```
 
-| 옵션 | 설명 | 기본값 |
-|------|------|--------|
-| `--with-tokens` | 컴포넌트 토큰 파일도 함께 생성 | false |
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--with-tokens` | Also generate component token file | false |
 
 ```bash
-# 컴포넌트 정의만 추가
+# Component definition only
 ryndesign add button
 
-# 컴포넌트 + 토큰 함께 추가
+# Component + tokens
 ryndesign add input --with-tokens
 ```
 
-**사용 가능한 컴포넌트 템플릿:**
+**Available Component Templates:**
 
-| 이름 | 카테고리 | 설명 |
-|------|----------|------|
-| `button` | actions | 버튼 (variant, size, slots) |
-| `input` | forms | 텍스트 입력 (focus, error states) |
-| `card` | layout | 카드 컨테이너 (elevated, outlined, filled) |
-| `checkbox` | forms | 체크박스 (size variants) |
-| `toggle` | forms | 토글 스위치 |
-| `badge` | display | 뱃지/태그 |
-| `avatar` | display | 아바타 |
+| Name | Category | Description |
+|------|----------|-------------|
+| `button` | actions | Button (variant, size, slots) |
+| `input` | forms | Text input (focus, error states) |
+| `card` | layout | Card container (elevated, outlined, filled) |
+| `checkbox` | forms | Checkbox (size variants) |
+| `toggle` | forms | Toggle switch |
+| `badge` | display | Badge/tag |
+| `avatar` | display | Avatar |
 
 ---
 
 ## `ryndesign figma`
 
-Figma Variables API 연동 명령어입니다. 상세 가이드는 [figma-integration.md](./figma-integration.md)를 참조하세요.
+Figma Variables API integration commands. See [figma-integration.md](./figma-integration.md) for a detailed guide.
 
 ```bash
-ryndesign figma pull [options]      # Figma에서 가져오기
-ryndesign figma push [options]      # Figma로 내보내기
-ryndesign figma diff [options]      # 차이 비교
+ryndesign figma pull [options]      # Pull from Figma
+ryndesign figma push [options]      # Push to Figma
+ryndesign figma diff [options]      # Compare differences
 ```
 
-### `figma pull` 옵션
+### `figma pull` Options
 
-| 옵션 | 축약 | 설명 | 기본값 |
-|------|------|------|--------|
-| `--config` | `-c` | 설정 파일 경로 | 자동 탐색 |
-| `--output` | `-o` | 출력 파일 경로 | `tokens/figma.tokens.json` |
-| `--merge` | | 기존 토큰과 병합 | false |
-| `--strategy` | | 병합 전략 | `prefer-remote` |
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--config` | `-c` | Config file path | Auto-detect |
+| `--output` | `-o` | Output file path | `tokens/figma.tokens.json` |
+| `--merge` | | Merge with existing local tokens | false |
+| `--strategy` | | Merge strategy | `prefer-remote` |
 
-병합 전략: `prefer-remote`, `prefer-local`, `remote-only-new`
+Merge strategies: `prefer-remote`, `prefer-local`, `remote-only-new`
 
 ---
 
 ## `ryndesign eject`
 
-제너레이터의 소스 코드를 로컬에 복사하여 직접 수정할 수 있게 합니다.
+Copy a generator's source code locally for customization.
 
 ```bash
 ryndesign eject <generator>
 ```
 
 ```bash
-# React 제너레이터 eject
+# Eject React generator
 ryndesign eject react
-# → ./generators/react/ 디렉토리에 소스 코드 복사
+# → Source code copied to ./generators/react/
 
-# 설정에서 eject된 제너레이터 사용
+# Use ejected generator in config
 import { myReactGenerator } from './generators/react';
 ```
 
 ---
 
-## 글로벌 옵션
+## Global Options
 
-모든 명령어에서 사용 가능한 옵션:
+Available for all commands:
 
-| 옵션 | 설명 |
-|------|------|
-| `--help` | 도움말 표시 |
-| `--version` | 버전 표시 |
+| Option | Description |
+|--------|-------------|
+| `--help` | Show help |
+| `--version` | Show version |

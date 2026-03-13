@@ -1,31 +1,33 @@
-# Figma 연동
+# Figma Integration
 
-RynDesign과 Figma Variables API의 양방향 동기화 가이드입니다.
+Guide for bidirectional sync between RynDesign and the Figma Variables API.
 
-## 사전 준비
+**[한국어](./ko/figma-integration.md)**
 
-### 1. Figma Personal Access Token 발급
+## Prerequisites
 
-1. Figma 앱 > Settings > Personal Access Tokens
-2. "Generate new token" 클릭
-3. 필요한 scope: `file_variables:read`, `file_variables:write`
-4. 환경변수에 저장:
+### 1. Figma Personal Access Token
+
+1. Figma app > Settings > Personal Access Tokens
+2. Click "Generate new token"
+3. Required scopes: `file_variables:read`, `file_variables:write`
+4. Save as environment variable:
 
 ```bash
 export FIGMA_TOKEN=figd_xxxxx
 ```
 
-### 2. Figma File Key 확인
+### 2. Figma File Key
 
-Figma 파일 URL에서 추출합니다:
+Extract from the Figma file URL:
 
 ```
 https://www.figma.com/file/AbCdEfGhIjKl/Design-System
                               ^^^^^^^^^^^^
-                              이 부분이 fileKey
+                              This part is the fileKey
 ```
 
-### 3. 설정 파일
+### 3. Configuration
 
 ```typescript
 // ryndesign.config.ts
@@ -41,82 +43,82 @@ export default defineConfig({
 });
 ```
 
-## 명령어
+## Commands
 
-### `figma pull` — Figma에서 토큰 가져오기
+### `figma pull` — Pull Tokens from Figma
 
-Figma Variables를 W3C Design Token 형식으로 변환하여 로컬에 저장합니다.
+Converts Figma Variables to W3C Design Token format and saves locally.
 
 ```bash
 ryndesign figma pull
 ```
 
-**옵션:**
+**Options:**
 
-| 옵션 | 설명 |
-|------|------|
-| `--config, -c <path>` | 설정 파일 경로 |
-| `--output, -o <path>` | 출력 파일 경로 (기본: `tokens/figma.tokens.json`) |
-| `--merge` | 기존 로컬 토큰과 병합 |
-| `--strategy <name>` | 병합 전략 (기본: `prefer-remote`) |
+| Option | Description |
+|--------|-------------|
+| `--config, -c <path>` | Config file path |
+| `--output, -o <path>` | Output file path (default: `tokens/figma.tokens.json`) |
+| `--merge` | Merge with existing local tokens |
+| `--strategy <name>` | Merge strategy (default: `prefer-remote`) |
 
-**병합 전략:**
+**Merge Strategies:**
 
-| 전략 | 설명 |
-|------|------|
-| `prefer-remote` | 충돌 시 Figma 값 우선 (기본) |
-| `prefer-local` | 충돌 시 로컬 값 유지 |
-| `remote-only-new` | Figma에서 새 토큰만 추가, 기존 토큰 유지 |
+| Strategy | Description |
+|----------|-------------|
+| `prefer-remote` | Figma values win on conflict (default) |
+| `prefer-local` | Local values win on conflict |
+| `remote-only-new` | Only add new tokens from Figma, keep existing |
 
 ```bash
-# 기본 pull (Figma 값으로 덮어쓰기)
+# Basic pull (overwrite with Figma values)
 ryndesign figma pull
 
-# 기존 토큰과 병합 (Figma 우선)
+# Merge with existing tokens (Figma wins)
 ryndesign figma pull --merge
 
-# 로컬 우선 병합
+# Merge keeping local values
 ryndesign figma pull --merge --strategy prefer-local
 
-# 새 토큰만 추가
+# Only add new tokens
 ryndesign figma pull --merge --strategy remote-only-new
 ```
 
-**Mode 매핑:**
+**Mode Mapping:**
 
-`modeMapping`을 설정하면 Figma Variable의 모드별로 다른 파일에 저장됩니다.
+When `modeMapping` is configured, Figma Variable modes are saved to different files.
 
 ```typescript
 figma: {
   modeMapping: {
-    'Light': 'tokens/base.tokens.json',    // Light 모드 → base 토큰
-    'Dark': 'tokens/dark.tokens.json',     // Dark 모드 → 다크 테마 오버라이드
+    'Light': 'tokens/base.tokens.json',    // Light mode → base tokens
+    'Dark': 'tokens/dark.tokens.json',     // Dark mode → dark theme overrides
   },
 }
 ```
 
-### `figma push` — 토큰을 Figma로 내보내기
+### `figma push` — Push Tokens to Figma
 
-로컬 토큰을 Figma Variables로 업로드합니다.
+Uploads local tokens as Figma Variables.
 
 ```bash
 ryndesign figma push
 ```
 
-**동작:**
-- 로컬 토큰을 빌드하여 `ResolvedTokenSet` 생성
-- Figma Variables API로 변수 생성/업데이트
-- 모드가 설정되어 있으면 모드별 값 설정
+**Behavior:**
+- Builds local tokens into `ResolvedTokenSet`
+- Creates/updates Figma Variables via the API
+- Sets mode-specific values when modes are configured
 
-### `figma diff` — 차이 비교
+### `figma diff` — Compare Differences
 
-로컬 토큰과 Figma Variables의 차이를 표시합니다.
+Shows differences between local tokens and Figma Variables.
 
 ```bash
 ryndesign figma diff
 ```
 
-**출력 예시:**
+**Example Output:**
 
 ```
 Added (3):
@@ -132,63 +134,63 @@ Removed (1):
   - color.deprecated      (exists locally, not in Figma)
 ```
 
-## Figma Variable → 토큰 변환 규칙
+## Figma Variable → Token Conversion
 
-| Figma Variable Type | 토큰 `$type` |
-|---------------------|-------------|
+| Figma Variable Type | Token `$type` |
+|---------------------|---------------|
 | `COLOR` | `color` |
-| `FLOAT` | `number` 또는 `dimension` (컨텍스트에 따라) |
-| `STRING` | (지원, 텍스트 값으로 저장) |
-| `BOOLEAN` | (지원, 불리언 값으로 저장) |
+| `FLOAT` | `number` or `dimension` (context-dependent) |
+| `STRING` | (supported, stored as text value) |
+| `BOOLEAN` | (supported, stored as boolean value) |
 
-**네이밍 변환:**
+**Naming Conversion:**
 
-Figma Variable 이름의 `/`는 토큰 경로의 `.`으로 변환됩니다.
+Figma Variable name `/` is converted to token path `.`:
 
 ```
-Figma: color/primary/500     →  토큰: color.primary.500
-Figma: spacing/medium        →  토큰: spacing.medium
+Figma: color/primary/500     →  Token: color.primary.500
+Figma: spacing/medium        →  Token: spacing.medium
 ```
 
-## 워크플로우 예시
+## Workflow Examples
 
-### 디자이너 → 개발자 (Pull 워크플로우)
+### Designer → Developer (Pull Workflow)
 
 ```bash
-# 1. Figma에서 최신 변수 가져오기
+# 1. Pull latest variables from Figma
 ryndesign figma pull --merge
 
-# 2. 차이 확인
+# 2. Review changes
 git diff tokens/
 
-# 3. 코드 재생성
+# 3. Regenerate code
 ryndesign generate
 
-# 4. 프리뷰로 확인
+# 4. Preview
 ryndesign preview
 
-# 5. 커밋
+# 5. Commit
 git add tokens/ generated/
 git commit -m "chore: sync tokens from Figma"
 ```
 
-### 개발자 → 디자이너 (Push 워크플로우)
+### Developer → Designer (Push Workflow)
 
 ```bash
-# 1. 로컬에서 토큰 수정
-# (tokens/base.tokens.json 편집)
+# 1. Edit tokens locally
+# (edit tokens/base.tokens.json)
 
-# 2. 검증
+# 2. Validate
 ryndesign validate
 
-# 3. Figma에 반영
+# 3. Push to Figma
 ryndesign figma push
 
-# 4. 차이 확인
+# 4. Verify
 ryndesign figma diff
 ```
 
-### CI/CD 연동
+### CI/CD Integration
 
 ```yaml
 # .github/workflows/figma-sync.yml

@@ -1,12 +1,10 @@
-# Component Definition Spec
+# 컴포넌트 정의 스펙
 
-RynDesign's platform-independent component definition format.
+RynDesign의 플랫폼 독립적 컴포넌트 정의 형식입니다.
 
-**[한국어](./ko/component-spec.md)**
+## 파일 형식
 
-## File Format
-
-JSON files with `.component.json` extension (recommended).
+JSON 파일이며, 확장자는 `.component.json`을 권장합니다.
 
 ```
 components/
@@ -19,7 +17,7 @@ components/
 └── avatar.component.json
 ```
 
-## Full Interface
+## 전체 인터페이스
 
 ```typescript
 interface ComponentDefinition {
@@ -34,38 +32,38 @@ interface ComponentDefinition {
 }
 ```
 
-## Field Details
+## 필드 상세
 
-### `name` (required)
+### `name` (필수)
 
-Component name in PascalCase.
+컴포넌트 이름입니다. PascalCase를 사용합니다.
 
 ```json
 { "name": "Button" }
 ```
 
-Generator-specific transformations:
+제너레이터별 변환:
 - React: `Button.tsx`
 - SwiftUI: `DSButton.swift`
 - CSS: `.button` (kebab-case)
 - Compose: `DSButton.kt`
 
-### `category` (required)
+### `category` (필수)
 
-Component classification.
+컴포넌트의 분류입니다.
 
-| Value | Description | Examples |
-|-------|-------------|----------|
-| `actions` | Action/interaction | Button, IconButton |
-| `forms` | Form inputs | Input, Checkbox, Toggle |
-| `layout` | Layout/containers | Card, Modal, Divider |
-| `display` | Information display | Badge, Avatar, Tag |
-| `navigation` | Navigation | Tab, Breadcrumb |
-| `feedback` | Feedback/notifications | Toast, Alert |
+| 값 | 설명 | 예시 |
+|----|------|------|
+| `actions` | 액션/인터랙션 | Button, IconButton |
+| `forms` | 폼 입력 요소 | Input, Checkbox, Toggle |
+| `layout` | 레이아웃/컨테이너 | Card, Modal, Divider |
+| `display` | 정보 표시 | Badge, Avatar, Tag |
+| `navigation` | 내비게이션 | Tab, Breadcrumb |
+| `feedback` | 피드백/알림 | Toast, Alert |
 
-### `props` (required)
+### `props` (필수)
 
-Component properties.
+컴포넌트 속성을 정의합니다.
 
 ```json
 {
@@ -104,17 +102,17 @@ interface ComponentProp {
 }
 ```
 
-| type | Description | React | SwiftUI | Android |
-|------|-------------|-------|---------|---------|
-| `string` | String | `string` | `String` | `String` |
-| `boolean` | Boolean | `boolean` | `Bool` | `Boolean` |
-| `number` | Number | `number` | `Int`/`Double` | `Int` |
-| `callback` | Callback function | `() => void` | `() -> Void` | `() -> Unit` |
-| `node` | Child element | `ReactNode` | `some View` | `@Composable` |
+| type | 설명 | React | SwiftUI | Android |
+|------|------|-------|---------|---------|
+| `string` | 문자열 | `string` | `String` | `String` |
+| `boolean` | 불리언 | `boolean` | `Bool` | `Boolean` |
+| `number` | 숫자 | `number` | `Int`/`Double` | `Int` |
+| `callback` | 콜백 함수 | `() => void` | `() -> Void` | `() -> Unit` |
+| `node` | 자식 요소 | `ReactNode` | `some View` | `@Composable` |
 
-### `variants` (required)
+### `variants` (필수)
 
-Variant axis definitions. All value combinations (cartesian product) are resolved automatically.
+배리언트 축을 정의합니다. 모든 축의 값 조합(cartesian product)이 자동 해석됩니다.
 
 ```json
 {
@@ -131,27 +129,27 @@ Variant axis definitions. All value combinations (cartesian product) are resolve
 }
 ```
 
-This example produces 4 variants x 3 sizes = 12 combinations, all resolved automatically.
+위 예시의 경우 4 variant x 3 size = 12가지 조합이 모두 해석됩니다.
 
 **ComponentVariant:**
 
 ```typescript
 interface ComponentVariant {
-  values: string[];   // Allowed values
-  default: string;    // Default value
+  values: string[];   // 허용 값 목록
+  default: string;    // 기본값
 }
 ```
 
-**Generator-specific output:**
+**제너레이터별 변환:**
 - React: `variant?: 'primary' | 'secondary' | ...` prop
 - SwiftUI: `enum ButtonVariant { case primary, secondary, ... }`
 - CSS: `.button--primary`, `.button--secondary`, ...
 - Tailwind: `buttonVariant = { primary: '...', secondary: '...' }`
 - Compose: `enum class DSButtonVariant { PRIMARY, SECONDARY, ... }`
 
-### `slots` (required)
+### `slots` (필수)
 
-Child element insertion points.
+자식 요소 삽입 지점을 정의합니다.
 
 ```json
 {
@@ -177,9 +175,9 @@ interface ComponentSlot {
 }
 ```
 
-### `tokenMapping` (required)
+### `tokenMapping` (필수)
 
-Maps component style properties to token paths. Uses `{variant}` and `{size}` placeholders.
+컴포넌트 스타일 속성과 토큰 경로의 매핑입니다. `{variant}`, `{size}` 플레이스홀더를 사용합니다.
 
 ```json
 {
@@ -194,26 +192,26 @@ Maps component style properties to token paths. Uses `{variant}` and `{size}` pl
 }
 ```
 
-**Placeholders:**
-- `{variant}`: Replaced with each value from `variants.variant.values`
-- `{size}`: Replaced with each value from `variants.size.values`
+**플레이스홀더:**
+- `{variant}`: `variants.variant.values`의 각 값으로 치환
+- `{size}`: `variants.size.values`의 각 값으로 치환
 
-**Available property keys:**
+**사용 가능한 속성 키:**
 
-| Key | Description | CSS | Tailwind |
-|-----|-------------|-----|----------|
-| `background` | Background color | `background-color` | `bg-` |
-| `textColor` | Text color | `color` | `text-` |
-| `borderRadius` | Border radius | `border-radius` | `rounded-` |
-| `borderColor` | Border color | `border-color` | `border-` |
-| `borderWidth` | Border width | `border-width` | `border-` |
-| `paddingX` | Horizontal padding | `padding-left/right` | `px-` |
-| `paddingY` | Vertical padding | `padding-top/bottom` | `py-` |
-| `fontSize` | Font size | `font-size` | `text-` |
+| 키 | 설명 | CSS | Tailwind |
+|----|------|-----|----------|
+| `background` | 배경색 | `background-color` | `bg-` |
+| `textColor` | 텍스트 색상 | `color` | `text-` |
+| `borderRadius` | 모서리 둥글기 | `border-radius` | `rounded-` |
+| `borderColor` | 테두리 색상 | `border-color` | `border-` |
+| `borderWidth` | 테두리 두께 | `border-width` | `border-` |
+| `paddingX` | 좌우 패딩 | `padding-left/right` | `px-` |
+| `paddingY` | 상하 패딩 | `padding-top/bottom` | `py-` |
+| `fontSize` | 폰트 크기 | `font-size` | `text-` |
 
-### `states` (required)
+### `states` (필수)
 
-Per-state token overrides.
+상태별 토큰 오버라이드를 정의합니다.
 
 ```json
 {
@@ -237,23 +235,31 @@ Per-state token overrides.
 }
 ```
 
-**Common states:**
+**ComponentStateOverrides:**
 
-| State | Description | CSS Mapping |
-|-------|-------------|-------------|
-| `hover` | Mouse hover | `:hover` |
-| `pressed` / `active` | Click/tap | `:active` |
-| `focused` | Focus state | `:focus` |
-| `disabled` | Disabled | `.--disabled`, `[disabled]` |
-| `error` | Error state | `.--error` |
+```typescript
+interface ComponentStateOverrides {
+  tokenOverrides: Record<string, string>;  // 속성 키 → 토큰 경로
+}
+```
 
-## Resolution Process
+**일반적인 상태:**
 
-Component definitions are resolved as follows:
+| 상태 | 설명 | CSS 적용 |
+|------|------|----------|
+| `hover` | 마우스 호버 | `:hover` |
+| `pressed` / `active` | 클릭/탭 중 | `:active` |
+| `focused` | 포커스 상태 | `:focus` |
+| `disabled` | 비활성 | `.--disabled`, `[disabled]` |
+| `error` | 에러 상태 | `.--error` |
 
-1. Replace placeholders in `tokenMapping` with all variant x size combinations
-2. Look up each token path in the `ResolvedTokenSet`
-3. Store results in `ResolvedComponent.variantTokens`
+## 해석 과정
+
+컴포넌트 정의는 다음과 같이 해석됩니다:
+
+1. `tokenMapping`의 플레이스홀더를 모든 variant x size 조합으로 치환
+2. 각 토큰 경로를 `ResolvedTokenSet`에서 조회
+3. 결과를 `ResolvedComponent.variantTokens`에 저장
 
 ```
 tokenMapping.background = "component.button.{variant}.background"
@@ -276,7 +282,7 @@ interface ResolvedComponent {
 }
 ```
 
-## Full Example
+## 전체 예시
 
 ```json
 {
