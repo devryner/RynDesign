@@ -1,0 +1,30 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Checkbox",
+  "category": "forms",
+  "props": {
+    "checked": { "type": "boolean", "required": true },
+    "label": { "type": "string" },
+    "disabled": { "type": "boolean", "default": false },
+    "indeterminate": { "type": "boolean", "default": false },
+    "onChange": { "type": "callback" }
+  },
+  "variants": {
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "slots": {},
+  "tokenMapping": {
+    "borderColor": "component.checkbox.border",
+    "checkedBackground": "component.checkbox.checked.background",
+    "checkmarkColor": "component.checkbox.checkmark",
+    "borderRadius": "component.checkbox.borderRadius",
+    "size": "component.checkbox.{size}.size",
+    "labelFontSize": "component.checkbox.{size}.labelFontSize",
+    "gap": "component.checkbox.gap"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "borderColor": "component.checkbox.hover.border" } },
+    "focus": { "tokenOverrides": { "borderColor": "component.checkbox.focus.border" } },
+    "disabled": { "tokenOverrides": { "borderColor": "component.checkbox.disabled.border" } }
+  }
+}

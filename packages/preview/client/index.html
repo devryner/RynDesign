@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RynDesign Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-sidebar: #fafafa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666;
+      --border-color: #e5e5e5;
+      --accent: #3B82F6;
+    }
+    [data-app-theme="dark"] {
+      --bg-primary: #1a1a2e;
+      --bg-secondary: #16213e;
+      --bg-sidebar: #0f3460;
+      --text-primary: #e5e5e5;
+      --text-secondary: #a0a0a0;
+      --border-color: #333;
+      --accent: #60a5fa;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    .app { display: grid; grid-template: "header header" auto "sidebar main" 1fr "sidebar footer" auto / 300px 1fr; height: 100vh; }
+    .header { grid-area: header; padding: 12px 20px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .sidebar { grid-area: sidebar; background: var(--bg-sidebar); border-right: 1px solid var(--border-color); overflow-y: auto; padding: 16px; }
+    .main { grid-area: main; overflow-y: auto; padding: 24px; }
+    .footer { grid-area: footer; padding: 12px 20px; background: var(--bg-secondary); border-top: 1px solid var(--border-color); font-size: 12px; }
+    .theme-switcher { display: flex; gap: 8px; }
+    .theme-btn { padding: 6px 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary); cursor: pointer; font-size: 13px; }
+    .theme-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .token-group { margin-bottom: 16px; }
+    .token-group h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+    .token-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border-color); }
+    .token-name { flex: 1; font-size: 13px; font-family: monospace; }
+    .token-value { font-size: 12px; color: var(--text-secondary); }
+    .color-swatch { width: 24px; height: 24px; border-radius: 4px; border: 1px solid var(--border-color); cursor: pointer; }
+    .color-swatch input { opacity: 0; width: 24px; height: 24px; cursor: pointer; position: absolute; }
+    .platform-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .platform-tab { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); cursor: pointer; font-size: 13px; color: var(--text-primary); }
+    .platform-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .code-viewer { background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 13px; line-height: 1.6; overflow-x: auto; white-space: pre; }
+    .component-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .component-card { border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; background: var(--bg-secondary); }
+    .component-card h4 { margin-bottom: 12px; font-size: 14px; }
+    .split-view { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .split-pane { border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; }
+    .split-pane h4 { margin-bottom: 12px; font-size: 13px; color: var(--text-secondary); }
+    .status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .status-dot.connected { background: #10b981; }
+    .status-dot.disconnected { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="header">
+      <h1>RynDesign Preview</h1>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="theme-switcher" id="themeSwitcher"></div>
+        <div class="status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Connecting...</span>
+        </div>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar">
+      <h2 style="font-size: 14px; margin-bottom: 16px;">Token Editor</h2>
+      <div id="tokenEditor"></div>
+    </aside>
+
+    <main class="main">
+      <div class="platform-tabs" id="platformTabs"></div>
+      <div id="previewContent"></div>
+      <div style="margin-top: 24px;">
+        <h3 style="font-size: 14px; margin-bottom: 12px;">Generated Code</h3>
+        <div class="code-viewer" id="codeViewer">
+          // Select a platform to view generated code
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>RynDesign v0.1.0</span>
+    </footer>
+  </div>
+
+  <script>
+    // Preview client application
+    const state = {
+      ws: null,
+      tokenSet: null,
+      currentTheme: 'light',
+      currentPlatform: 'react',
+      connected: false,
+    };
+
+    // WebSocket connection
+    function connectWs() {
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      state.ws = new WebSocket(`${protocol}//${location.host}`);
+
+      state.ws.onopen = () => {
+        state.connected = true;
+        updateStatus(true);
+      };
+
+      state.ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        handleMessage(msg);
+      };
+
+      state.ws.onclose = () => {
+        state.connected = false;
+        updateStatus(false);
+        setTimeout(connectWs, 2000);
+      };
+    }
+
+    function handleMessage(msg) {
+      switch (msg.type) {
+        case 'init':
+        case 'full-state':
+          state.tokenSet = msg.tokenSet;
+          renderAll();
+          break;
+        case 'rebuild-complete':
+          if (msg.tokenSet) state.tokenSet = msg.tokenSet;
+          renderAll();
+          break;
+        case 'theme-switched':
+          renderPreview();
+          break;
+      }
+    }
+
+    function updateStatus(connected) {
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      dot.className = `status-dot ${connected ? 'connected' : 'disconnected'}`;
+      text.textContent = connected ? 'Connected' : 'Disconnected';
+    }
+
+    // Rendering
+    function renderAll() {
+      renderThemeSwitcher();
+      renderTokenEditor();
+      renderPlatformTabs();
+      renderPreview();
+    }
+
+    function renderThemeSwitcher() {
+      const container = document.getElementById('themeSwitcher');
+      if (!state.tokenSet) return;
+
+      const themes = ['light', ...Object.keys(state.tokenSet.themes?.themes || {})];
+      container.innerHTML = themes.map(t =>
+        `<button class="theme-btn ${t === state.currentTheme ? 'active' : ''}" onclick="switchTheme('${t}')">${t}</button>`
+      ).join('') + `<button class="theme-btn" onclick="toggleSplitView()">Split</button>`;
+    }
+
+    function renderTokenEditor() {
+      const container = document.getElementById('tokenEditor');
+      if (!state.tokenSet?.tokens) {
+        container.innerHTML = '<p style="color: var(--text-secondary); font-size: 13px;">No tokens loaded</p>';
+        return;
+      }
+
+      const groups = {};
+      for (const token of state.tokenSet.tokens) {
+        const group = token.path[0];
+        if (!groups[group]) groups[group] = [];
+        groups[group].push(token);
+      }
+
+      let html = '';
+      for (const [group, tokens] of Object.entries(groups)) {
+        html += `<div class="token-group"><h3>${group}</h3>`;
+        for (const token of tokens) {
+          const path = token.path.join('.');
+          const value = token.$value;
+          html += `<div class="token-item">`;
+
+          if (value.type === 'color') {
+            html += `<div class="color-swatch" style="background: ${value.hex}; position: relative;">
+              <input type="color" value="${value.hex}" onchange="updateToken('${path}', this.value)" />
+            </div>`;
+          }
+
+          html += `<span class="token-name">${token.path.slice(1).join('.')}</span>`;
+          html += `<span class="token-value">${formatValue(value)}</span>`;
+          html += `</div>`;
+        }
+        html += `</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderPlatformTabs() {
+      const container = document.getElementById('platformTabs');
+      const platforms = ['react', 'vue', 'svelte', 'rails', 'swiftui', 'uikit', 'compose', 'android-view'];
+      container.innerHTML = platforms.map(p =>
+        `<button class="platform-tab ${p === state.currentPlatform ? 'active' : ''}" onclick="switchPlatform('${p}')">${p}</button>`
+      ).join('');
+    }
+
+    function renderPreview() {
+      const container = document.getElementById('previewContent');
+      if (!state.tokenSet) {
+        container.innerHTML = '<p>Loading...</p>';
+        return;
+      }
+
+      // Show component previews with current theme tokens
+      let html = '<div class="component-grid">';
+      html += renderButtonPreview();
+      html += '</div>';
+      container.innerHTML = html;
+
+      // Update code viewer
+      renderCodeViewer();
+    }
+
+    function renderButtonPreview() {
+      const tokens = state.tokenSet.tokens;
+      const getToken = (path) => {
+        const t = tokens.find(t => t.path.join('.') === path);
+        return t ? formatValue(t.$value) : '#ccc';
+      };
+
+      return `
+        <div class="component-card">
+          <h4>Button</h4>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button style="padding: 8px 16px; border-radius: 8px; border: none; background: ${getToken('color.primary')}; color: white; cursor: pointer;">Primary</button>
+            <button style="padding: 8px 16px; border-radius: 8px; border: 1px solid ${getToken('color.primary')}; background: transparent; color: ${getToken('color.primary')}; cursor: pointer;">Outline</button>
+            <button style="padding: 8px 16px; border-radius: 8px; border: none; background: transparent; color: ${getToken('color.primary')}; cursor: pointer;">Ghost</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCodeViewer() {
+      const codeViewer = document.getElementById('codeViewer');
+      const platform = state.currentPlatform;
+
+      // Show sample generated code for the platform
+      const samples = {
+        react: `// tokens.css\n:root {\n${state.tokenSet?.tokens?.slice(0, 5).map(t => `  --${t.path.join('-')}: ${formatValue(t.$value)};`).join('\n') || ''}\n  /* ... */\n}`,
+        vue: `<!-- useTheme.ts -->\nimport { ref, watchEffect } from 'vue';\n\nexport const theme = ref('light');`,
+        svelte: `<!-- theme.ts -->\nimport { writable } from 'svelte/store';\n\nexport const theme = writable('light');`,
+        swiftui: `// DesignTokens+Color.swift\nextension Color {\n    enum DesignSystem {\n${state.tokenSet?.tokens?.filter(t => t.$type === 'color').slice(0, 3).map(t => `        static let ${t.path.join('_')} = Color(hex: "${t.$value.hex}")`).join('\n') || ''}\n    }\n}`,
+        compose: `// DesignColors.kt\nobject LightColors {\n${state.tokenSet?.tokens?.filter(t => t.$type === 'color').slice(0, 3).map(t => `    val ${t.path.join('_').replace(/[.-]/g, '_')} = Color(0xFF${(t.$value.hex || '').replace('#', '')})`).join('\n') || ''}\n}`,
+      };
+
+      codeViewer.textContent = samples[platform] || `// ${platform} code generation`;
+    }
+
+    // Actions
+    function switchTheme(theme) {
+      state.currentTheme = theme;
+      document.documentElement.setAttribute('data-app-theme', theme === 'light' ? '' : theme);
+      state.ws?.send(JSON.stringify({ type: 'theme-change', theme }));
+      renderThemeSwitcher();
+      renderPreview();
+    }
+
+    function switchPlatform(platform) {
+      state.currentPlatform = platform;
+      renderPlatformTabs();
+      renderCodeViewer();
+    }
+
+    function toggleSplitView() {
+      const container = document.getElementById('previewContent');
+      container.innerHTML = `
+        <div class="split-view">
+          <div class="split-pane"><h4>Light</h4>${renderButtonPreview()}</div>
+          <div class="split-pane" style="background: #1a1a2e; color: #e5e5e5;"><h4>Dark</h4>${renderButtonPreview()}</div>
+        </div>
+      `;
+    }
+
+    function updateToken(path, value) {
+      state.ws?.send(JSON.stringify({
+        type: 'token-update',
+        theme: state.currentTheme === 'light' ? undefined : state.currentTheme,
+        path,
+        value,
+      }));
+    }
+
+    function formatValue(value) {
+      if (!value) return '';
+      switch (value.type) {
+        case 'color': return value.hex;
+        case 'dimension': return `${value.value}${value.unit}`;
+        case 'fontWeight': return String(value.value);
+        case 'duration': return `${value.value}${value.unit}`;
+        case 'number': return String(value.value);
+        default: return JSON.stringify(value);
+      }
+    }
+
+    // Initialize
+    connectWs();
+
+    // Fetch initial state via REST as fallback
+    fetch('/api/tokens').then(r => r.json()).then(data => {
+      if (data && !state.tokenSet) {
+        state.tokenSet = data;
+        renderAll();
+      }
+    }).catch(() => {});
+  </script>
+</body>
+</html>
