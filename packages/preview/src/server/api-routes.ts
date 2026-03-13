@@ -26,6 +26,17 @@ export function setupApiRoutes(builder: IncrementalBuilder): RequestHandler {
         json(res, builder.getThemes());
       } else if (pathname === '/api/components' && req.method === 'GET') {
         json(res, builder.getComponents());
+      } else if (pathname === '/api/snippets' && req.method === 'GET') {
+        const platform = url.searchParams.get('platform') ?? 'react';
+        const component = url.searchParams.get('component') ?? undefined;
+        const type = url.searchParams.get('type') ?? undefined;
+        builder.generateSnippets(platform, component, type).then(code => {
+          json(res, { code });
+        }).catch(err => {
+          res.writeHead(500);
+          json(res, { error: (err as Error).message });
+        });
+        return; // async handling
       } else if (pathname === '/api/tokens' && req.method === 'PUT') {
         let body = '';
         req.on('data', chunk => { body += chunk; });

@@ -64,11 +64,88 @@ export function resolveComponent(
     }
   }
 
+  // Resolve all variant × size combinations
+  const variantTokens = resolveAllVariants(definition, tokenSet);
+
   return {
     definition,
     resolvedTokens,
     resolvedStateTokens,
+    variantTokens,
   };
+}
+
+/**
+ * Resolve component tokens for a specific theme.
+ * Applies theme overrides to the token set before resolving.
+ */
+export function resolveComponentForTheme(
+  definition: ComponentDefinition,
+  tokenSet: ResolvedTokenSet,
+  themeName: string
+): ResolvedComponent {
+  const themeData = tokenSet.themes.themes[themeName];
+  if (!themeData) {
+    return resolveComponent(definition, tokenSet);
+  }
+
+  // Create a merged token set with theme overrides applied
+  const themedTokenSet: ResolvedTokenSet = {
+    ...tokenSet,
+    tokens: mergeThemeTokens(tokenSet.tokens, themeData.tokens),
+  };
+
+  return resolveComponent(definition, themedTokenSet);
+}
+
+/**
+ * Resolve tokens for all variant × size cartesian product combinations.
+ */
+function resolveAllVariants(
+  definition: ComponentDefinition,
+  tokenSet: ResolvedTokenSet
+): Record<string, Record<string, Record<string, ResolvedToken>>> {
+  const result: Record<string, Record<string, Record<string, ResolvedToken>>> = {};
+
+  const variants = definition.variants.variant?.values ?? ['default'];
+  const sizes = definition.variants.size?.values ?? ['default'];
+
+  for (const variant of variants) {
+    result[variant] = {};
+    for (const size of sizes) {
+      result[variant][size] = {};
+      for (const [prop, tokenPath] of Object.entries(definition.tokenMapping)) {
+        const resolved = resolveTokenPath(tokenPath, tokenSet, {
+          variant,
+          size,
+        });
+        if (resolved) {
+          result[variant][size][prop] = resolved;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Merge theme override tokens into the base token array.
+ * Theme tokens replace base tokens with matching paths.
+ */
+function mergeThemeTokens(
+  baseTokens: ResolvedToken[],
+  themeTokens: ResolvedToken[]
+): ResolvedToken[] {
+  const themeMap = new Map<string, ResolvedToken>();
+  for (const t of themeTokens) {
+    themeMap.set(t.path.join('.'), t);
+  }
+
+  return baseTokens.map(token => {
+    const override = themeMap.get(token.path.join('.'));
+    return override ?? token;
+  });
 }
 
 function resolveTokenPath(

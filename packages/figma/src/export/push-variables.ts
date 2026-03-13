@@ -32,7 +32,7 @@ export async function pushVariablesToFigma(options: PushOptions): Promise<void> 
   };
 
   let collectionId = existingCollection?.id;
-  let defaultModeId = existingCollection?.defaultModeId;
+  const defaultModeId = existingCollection?.defaultModeId;
   let darkModeId: string | undefined;
 
   if (!existingCollection) {

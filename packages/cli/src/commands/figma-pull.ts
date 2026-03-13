@@ -23,6 +23,16 @@ export default defineCommand({
       description: 'Path to config file',
       default: 'ryndesign.config.ts',
     },
+    merge: {
+      type: 'boolean',
+      description: 'Merge with existing local tokens instead of overwriting',
+      default: false,
+    },
+    strategy: {
+      type: 'string',
+      description: 'Merge strategy: prefer-remote, prefer-local, remote-only-new',
+      default: 'prefer-remote',
+    },
   },
   async run({ args }) {
     console.log(pc.cyan('📥 Figma Pull\n'));
@@ -40,9 +50,16 @@ export default defineCommand({
       process.exit(1);
     }
 
+    const shouldMerge = args.merge as boolean;
+    const strategy = args.strategy as string;
+    const validStrategies = ['prefer-remote', 'prefer-local', 'remote-only-new'];
+    if (shouldMerge && !validStrategies.includes(strategy)) {
+      console.error(pc.red(`Invalid merge strategy "${strategy}". Use: ${validStrategies.join(', ')}`));
+      process.exit(1);
+    }
+
     try {
-      const { fetchFigmaVariables, mapFigmaToTokens } = await import('@ryndesign/figma');
-      const { resolveFigmaModes } = await import('@ryndesign/figma');
+      const { fetchFigmaVariables, mapFigmaToTokens, resolveFigmaModes, mergeTokens } = await import('@ryndesign/figma');
 
       console.log(pc.gray('Fetching variables from Figma...'));
 
@@ -53,28 +70,58 @@ export default defineCommand({
 
       console.log(pc.green(`✓ Fetched ${variables.length} variables`));
 
-      // Check for mode mapping in config
+      const cwd = process.cwd();
       const modeMapping = config?.figma?.modeMapping;
 
       if (modeMapping) {
         // Resolve modes into separate files
         const modeFiles = resolveFigmaModes(variables, modeMapping);
-        const cwd = process.cwd();
 
         for (const [filePath, tree] of Object.entries(modeFiles)) {
           const absolutePath = path.resolve(cwd, filePath);
           await fs.mkdir(path.dirname(absolutePath), { recursive: true });
+
+          if (shouldMerge) {
+            const existing = await readJsonSafe(absolutePath);
+            if (existing) {
+              // For mode files, filter tokens belonging to this mode
+              const modeTokens = variables.filter(t => {
+                const modeName = Object.keys(modeMapping).find(m => modeMapping[m] === filePath);
+                return modeName && t.modes[modeName] !== undefined;
+              });
+
+              const result = mergeTokens(existing, modeTokens, { strategy: strategy as any });
+              await fs.writeFile(absolutePath, JSON.stringify(result.merged, null, 2), 'utf-8');
+              console.log(pc.green(`  ✓ Merged ${filePath}`) + pc.gray(` (+${result.stats.added} new, ${result.stats.updated} updated, ${result.stats.kept} kept)`));
+              continue;
+            }
+          }
+
           await fs.writeFile(absolutePath, JSON.stringify(tree, null, 2), 'utf-8');
           console.log(pc.green(`  ✓ Written ${filePath}`));
         }
       } else {
         // Write all to single file
-        const tree = mapFigmaToTokens(variables);
-        const cwd = process.cwd();
         const outPath = path.resolve(cwd, 'tokens/figma.tokens.json');
         await fs.mkdir(path.dirname(outPath), { recursive: true });
-        await fs.writeFile(outPath, JSON.stringify(tree, null, 2), 'utf-8');
-        console.log(pc.green(`  ✓ Written tokens/figma.tokens.json`));
+
+        if (shouldMerge) {
+          const existing = await readJsonSafe(outPath);
+          if (existing) {
+            const result = mergeTokens(existing, variables, { strategy: strategy as any });
+            await fs.writeFile(outPath, JSON.stringify(result.merged, null, 2), 'utf-8');
+            console.log(pc.green(`  ✓ Merged tokens/figma.tokens.json`) + pc.gray(` (+${result.stats.added} new, ${result.stats.updated} updated, ${result.stats.kept} kept)`));
+          } else {
+            // No existing file, write fresh
+            const tree = mapFigmaToTokens(variables);
+            await fs.writeFile(outPath, JSON.stringify(tree, null, 2), 'utf-8');
+            console.log(pc.green(`  ✓ Written tokens/figma.tokens.json`));
+          }
+        } else {
+          const tree = mapFigmaToTokens(variables);
+          await fs.writeFile(outPath, JSON.stringify(tree, null, 2), 'utf-8');
+          console.log(pc.green(`  ✓ Written tokens/figma.tokens.json`));
+        }
       }
 
       console.log(pc.green('\n✓ Figma pull complete!'));
@@ -84,3 +131,12 @@ export default defineCommand({
     }
   },
 });
+
+async function readJsonSafe(absolutePath: string): Promise<Record<string, unknown> | null> {
+  try {
+    const content = await fs.readFile(absolutePath, 'utf-8');
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
+}

@@ -30,8 +30,12 @@ export interface ComponentDefinition {
   states: Record<string, ComponentStateOverrides>;
 }
 
+import type { ResolvedToken } from './tokens.js';
+
 export interface ResolvedComponent {
   definition: ComponentDefinition;
-  resolvedTokens: Record<string, import('./tokens').ResolvedToken>;
-  resolvedStateTokens: Record<string, Record<string, import('./tokens').ResolvedToken>>;
+  resolvedTokens: Record<string, ResolvedToken>;
+  resolvedStateTokens: Record<string, Record<string, ResolvedToken>>;
+  /** All variant × size combinations: variantTokens[variant][size][prop] = ResolvedToken */
+  variantTokens: Record<string, Record<string, Record<string, ResolvedToken>>>;
 }

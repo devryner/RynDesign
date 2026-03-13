@@ -33,6 +33,7 @@ export function setupWsHandler(wss: WebSocketServer, builder: IncrementalBuilder
       type: 'init',
       tokenSet: builder.getTokenSet(),
       themes: builder.getThemes(),
+      components: builder.getComponents(),
     }));
 
     ws.on('message', async (data: Buffer) => {
@@ -68,6 +69,7 @@ export function setupWsHandler(wss: WebSocketServer, builder: IncrementalBuilder
               type: 'full-state',
               tokenSet: builder.getTokenSet(),
               themes: builder.getThemes(),
+              components: builder.getComponents(),
             }));
             break;
           }

@@ -4,3 +4,4 @@ export { fetchFigmaVariables, mapFigmaToTokens } from './import/fetch-variables.
 export { mapTokensToFigma, pushVariablesToFigma } from './export/push-variables.js';
 export { diffFigmaTokens, type DiffResult } from './export/diff.js';
 export { resolveFigmaModes } from './import/mode-resolver.js';
+export { mergeTokens, type MergeStrategy, type MergeResult, type MergeOptions } from './import/merge.js';

@@ -26,6 +26,11 @@ export default defineCommand({
       description: 'Clean output directory before generating',
       default: false,
     },
+    'dry-run': {
+      type: 'boolean',
+      description: 'Show what would be generated without writing files',
+      default: false,
+    },
     config: {
       type: 'string',
       description: 'Path to config file',
@@ -33,7 +38,8 @@ export default defineCommand({
     },
   },
   async run({ args }) {
-    console.log(pc.cyan('⚡ RynDesign Generate\n'));
+    const dryRun = args['dry-run'] as boolean;
+    console.log(pc.cyan(`⚡ RynDesign Generate${dryRun ? ' (dry run)' : ''}\n`));
 
     const config = await loadConfig(args.config);
     if (!config) {
@@ -86,42 +92,72 @@ export default defineCommand({
       console.log(pc.green(`✓ Loaded ${components.length} component(s)`));
     }
 
+    // Resolve all components
+    const resolvedComponents = components.map(compDef => resolveComponent(compDef, tokenSet));
+
     // Run generators
     const allFiles: GeneratedFile[] = [];
+    const summary: { name: string; files: number; bytes: number }[] = [];
+
     for (const generator of generators) {
       console.log(pc.gray(`\nGenerating ${generator.displayName}...`));
+      let genFiles = 0;
+      let genBytes = 0;
 
       const ctx = {
         tokenSet,
         config: { outDir: config.outDir ?? 'generated', ...generator },
         outputDir: path.resolve(cwd, config.outDir ?? 'generated'),
         helpers: createGeneratorHelpers(),
+        components: resolvedComponents,
       };
 
-      // Generate tokens
-      const tokenFiles = await generator.generateTokens(ctx);
-      allFiles.push(...tokenFiles);
+      try {
+        // Generate tokens
+        const tokenFiles = await generator.generateTokens(ctx);
+        allFiles.push(...tokenFiles);
 
-      for (const file of tokenFiles) {
-        const filePath = path.resolve(ctx.outputDir, file.path);
-        await fs.mkdir(path.dirname(filePath), { recursive: true });
-        await fs.writeFile(filePath, file.content, 'utf-8');
-      }
-
-      // Generate components
-      for (const compDef of components) {
-        const resolvedComp = resolveComponent(compDef, tokenSet);
-        const compFiles = await generator.generateComponent(resolvedComp, ctx);
-        allFiles.push(...compFiles);
-
-        for (const file of compFiles) {
-          const filePath = path.resolve(ctx.outputDir, file.path);
-          await fs.mkdir(path.dirname(filePath), { recursive: true });
-          await fs.writeFile(filePath, file.content, 'utf-8');
+        for (const file of tokenFiles) {
+          genFiles++;
+          genBytes += Buffer.byteLength(file.content, 'utf-8');
+          if (!dryRun) {
+            const filePath = path.resolve(ctx.outputDir, file.path);
+            await fs.mkdir(path.dirname(filePath), { recursive: true });
+            await fs.writeFile(filePath, file.content, 'utf-8');
+          }
         }
-      }
 
-      console.log(pc.green(`  ✓ ${tokenFiles.length + components.length} files generated for ${generator.displayName}`));
+        // Generate components
+        for (const resolvedComp of resolvedComponents) {
+          const compFiles = await generator.generateComponent(resolvedComp, ctx);
+          allFiles.push(...compFiles);
+
+          for (const file of compFiles) {
+            genFiles++;
+            genBytes += Buffer.byteLength(file.content, 'utf-8');
+            if (!dryRun) {
+              const filePath = path.resolve(ctx.outputDir, file.path);
+              await fs.mkdir(path.dirname(filePath), { recursive: true });
+              await fs.writeFile(filePath, file.content, 'utf-8');
+            }
+          }
+        }
+
+        console.log(pc.green(`  ✓ ${genFiles} files generated for ${generator.displayName}`));
+        summary.push({ name: generator.displayName, files: genFiles, bytes: genBytes });
+      } catch (err) {
+        console.error(pc.red(`  ✗ ${generator.displayName} failed: ${(err as Error).message}`));
+      }
+    }
+
+    // Summary table
+    if (summary.length > 0) {
+      console.log(pc.gray('\n  Platform          Files    Size'));
+      console.log(pc.gray('  ─────────────────────────────────'));
+      for (const s of summary) {
+        const sizeStr = s.bytes < 1024 ? `${s.bytes} B` : `${(s.bytes / 1024).toFixed(1)} KB`;
+        console.log(`  ${s.name.padEnd(18)} ${String(s.files).padStart(5)}    ${sizeStr}`);
+      }
     }
 
     // Run hooks
@@ -129,13 +165,14 @@ export default defineCommand({
       await config.hooks['generate:complete'](allFiles);
     }
 
-    console.log(pc.green(`\n✓ Generation complete! ${allFiles.length} files written.`));
+    console.log(pc.green(`\n✓ Generation complete! ${allFiles.length} files ${dryRun ? 'would be written' : 'written'}.`));
 
     // Watch mode
     if (args.watch) {
       console.log(pc.cyan('\nWatching for changes...'));
       const { watch } = await import('chokidar');
-      const watcher = watch(config.tokens, {
+      const watchPatterns = [...config.tokens, ...(config.components ?? [])];
+      const watcher = watch(watchPatterns, {
         cwd,
         ignoreInitial: true,
       });
@@ -143,13 +180,49 @@ export default defineCommand({
       watcher.on('change', async (changedPath) => {
         console.log(pc.gray(`\nFile changed: ${changedPath}`));
         try {
-          // Re-run the generate (simplified - in real implementation would be incremental)
           const newTokenSet = await buildTokenSet({
             tokens: config.tokens,
             basePath: cwd,
             themes: config.themes as any,
           });
-          console.log(pc.green('✓ Rebuilt tokens'));
+
+          // Reload components
+          const newComponents = config.components
+            ? await loadComponents(config.components, cwd)
+            : [];
+          const newResolvedComponents = newComponents.map(c => resolveComponent(c, newTokenSet));
+
+          // Re-run generators
+          for (const generator of generators) {
+            try {
+              const ctx = {
+                tokenSet: newTokenSet,
+                config: { outDir: config.outDir ?? 'generated', ...generator },
+                outputDir: path.resolve(cwd, config.outDir ?? 'generated'),
+                helpers: createGeneratorHelpers(),
+                components: newResolvedComponents,
+              };
+
+              const tokenFiles = await generator.generateTokens(ctx);
+              for (const file of tokenFiles) {
+                const filePath = path.resolve(ctx.outputDir, file.path);
+                await fs.mkdir(path.dirname(filePath), { recursive: true });
+                await fs.writeFile(filePath, file.content, 'utf-8');
+              }
+
+              for (const resolvedComp of newResolvedComponents) {
+                const compFiles = await generator.generateComponent(resolvedComp, ctx);
+                for (const file of compFiles) {
+                  const filePath = path.resolve(ctx.outputDir, file.path);
+                  await fs.mkdir(path.dirname(filePath), { recursive: true });
+                  await fs.writeFile(filePath, file.content, 'utf-8');
+                }
+              }
+            } catch (err) {
+              console.error(pc.red(`  ✗ ${generator.displayName}: ${(err as Error).message}`));
+            }
+          }
+          console.log(pc.green('✓ Rebuilt and regenerated'));
         } catch (err) {
           console.error(pc.red(`Error: ${(err as Error).message}`));
         }

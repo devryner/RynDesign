@@ -38,12 +38,13 @@ export default defineCommand({
 
     const platformsInput = args.platforms || await p.multiselect({
       message: 'Select target platforms:',
+      initialValues: ['react', 'swiftui'],
       options: [
-        { value: 'react', label: 'React' },
+        { value: 'react', label: 'React', hint: 'recommended' },
+        { value: 'swiftui', label: 'SwiftUI', hint: 'recommended' },
         { value: 'vue', label: 'Vue' },
         { value: 'svelte', label: 'Svelte' },
         { value: 'rails', label: 'Rails' },
-        { value: 'swiftui', label: 'SwiftUI' },
         { value: 'uikit', label: 'UIKit' },
         { value: 'compose', label: 'Jetpack Compose' },
         { value: 'android-view', label: 'Android View' },
@@ -81,8 +82,12 @@ export default defineCommand({
     await fs.mkdir(path.join(cwd, 'generated'), { recursive: true });
 
     // Copy template tokens
-    const templateDir = path.resolve(__dirname, '../../templates');
-    // In the built version, templates are at a different relative path; we bundle them
+    // ESM-compatible path resolution
+    const templateDir = path.resolve(
+      typeof __dirname !== 'undefined'
+        ? path.resolve(__dirname, '../../templates')
+        : path.resolve(new URL('.', import.meta.url).pathname, '../../templates')
+    );
     const templateFile = template === 'full' ? 'full.tokens.json' : 'minimal.tokens.json';
 
     try {
@@ -143,6 +148,36 @@ export default defineCommand({
       );
     } catch {
       // Skip if not found
+    }
+
+    // Add generated/ to .gitignore
+    const gitignorePath = path.join(cwd, '.gitignore');
+    try {
+      let gitignore = '';
+      try {
+        gitignore = await fs.readFile(gitignorePath, 'utf-8');
+      } catch {
+        // File doesn't exist yet
+      }
+      if (!gitignore.includes('generated/')) {
+        gitignore += (gitignore.endsWith('\n') || gitignore === '' ? '' : '\n') + 'generated/\n';
+        await fs.writeFile(gitignorePath, gitignore);
+      }
+    } catch {
+      // Skip if can't write .gitignore
+    }
+
+    // Add scripts to package.json if it exists
+    try {
+      const pkgJsonPath = path.join(cwd, 'package.json');
+      const pkgContent = await fs.readFile(pkgJsonPath, 'utf-8');
+      const pkg = JSON.parse(pkgContent);
+      if (!pkg.scripts) pkg.scripts = {};
+      if (!pkg.scripts['generate']) pkg.scripts['generate'] = 'ryndesign generate';
+      if (!pkg.scripts['preview']) pkg.scripts['preview'] = 'ryndesign preview';
+      await fs.writeFile(pkgJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+    } catch {
+      // Skip if no package.json or can't modify
     }
 
     s.stop('Project files created!');

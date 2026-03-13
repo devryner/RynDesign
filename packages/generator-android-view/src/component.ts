@@ -201,14 +201,21 @@ function generateCustomView(comp: ResolvedComponent, options: AndroidViewGenerat
   kt += `    }\n\n`;
 
   // Helper color methods
+  const { variantTokens } = comp;
+  const defaultSize = definition.variants.size?.default ?? 'md';
+
   kt += `    @ColorInt\n`;
   kt += `    private fun getBackgroundColor(): Int {\n`;
   if (definition.variants.variant) {
     const variantEnum = `${name}Variant`;
     kt += `        return when (variant) {\n`;
     for (const v of definition.variants.variant.values) {
+      const token = variantTokens?.[v]?.[defaultSize]?.background;
       if (v === 'ghost' || v === 'outline') {
         kt += `            ${variantEnum}.${v.toUpperCase()} -> android.graphics.Color.TRANSPARENT\n`;
+      } else if (token && token.$value.type === 'color') {
+        const resName = token.path.join('_').replace(/[.-]/g, '_');
+        kt += `            ${variantEnum}.${v.toUpperCase()} -> ContextCompat.getColor(context, R.color.${resName})\n`;
       } else {
         kt += `            ${variantEnum}.${v.toUpperCase()} -> ContextCompat.getColor(context, R.color.color_${v})\n`;
       }
@@ -225,7 +232,11 @@ function generateCustomView(comp: ResolvedComponent, options: AndroidViewGenerat
     const variantEnum = `${name}Variant`;
     kt += `        return when (variant) {\n`;
     for (const v of definition.variants.variant.values) {
-      if (v === 'primary' || v === 'secondary') {
+      const token = variantTokens?.[v]?.[defaultSize]?.textColor;
+      if (token && token.$value.type === 'color') {
+        const resName = token.path.join('_').replace(/[.-]/g, '_');
+        kt += `            ${variantEnum}.${v.toUpperCase()} -> ContextCompat.getColor(context, R.color.${resName})\n`;
+      } else if (v === 'primary' || v === 'secondary') {
         kt += `            ${variantEnum}.${v.toUpperCase()} -> android.graphics.Color.WHITE\n`;
       } else {
         kt += `            ${variantEnum}.${v.toUpperCase()} -> ContextCompat.getColor(context, R.color.color_${v})\n`;
@@ -238,13 +249,20 @@ function generateCustomView(comp: ResolvedComponent, options: AndroidViewGenerat
   kt += `    }\n\n`;
 
   // Size helpers
+  const defaultVariant = definition.variants.variant?.default ?? 'primary';
+
   kt += `    private fun getHorizontalPadding(): Int {\n`;
   if (definition.variants.size) {
     const sizeEnum = `${name}Size`;
     kt += `        return when (size) {\n`;
     for (const s of definition.variants.size.values) {
-      const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
-      kt += `            ${sizeEnum}.${s.toUpperCase()} -> dpToPx(${padding}f)\n`;
+      const token = variantTokens?.[defaultVariant]?.[s]?.paddingX;
+      if (token && token.$value.type === 'dimension') {
+        kt += `            ${sizeEnum}.${s.toUpperCase()} -> dpToPx(${token.$value.value}f)\n`;
+      } else {
+        const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
+        kt += `            ${sizeEnum}.${s.toUpperCase()} -> dpToPx(${padding}f)\n`;
+      }
     }
     kt += `        }\n`;
   } else {
@@ -257,8 +275,13 @@ function generateCustomView(comp: ResolvedComponent, options: AndroidViewGenerat
     const sizeEnum = `${name}Size`;
     kt += `        return when (size) {\n`;
     for (const s of definition.variants.size.values) {
-      const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
-      kt += `            ${sizeEnum}.${s.toUpperCase()} -> dpToPx(${padding}f)\n`;
+      const token = variantTokens?.[defaultVariant]?.[s]?.paddingY;
+      if (token && token.$value.type === 'dimension') {
+        kt += `            ${sizeEnum}.${s.toUpperCase()} -> dpToPx(${token.$value.value}f)\n`;
+      } else {
+        const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
+        kt += `            ${sizeEnum}.${s.toUpperCase()} -> dpToPx(${padding}f)\n`;
+      }
     }
     kt += `        }\n`;
   } else {
@@ -271,8 +294,13 @@ function generateCustomView(comp: ResolvedComponent, options: AndroidViewGenerat
     const sizeEnum = `${name}Size`;
     kt += `        return when (size) {\n`;
     for (const s of definition.variants.size.values) {
-      const fontSize = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
-      kt += `            ${sizeEnum}.${s.toUpperCase()} -> ${fontSize}f\n`;
+      const token = variantTokens?.[defaultVariant]?.[s]?.fontSize;
+      if (token && token.$value.type === 'dimension') {
+        kt += `            ${sizeEnum}.${s.toUpperCase()} -> ${token.$value.value}f\n`;
+      } else {
+        const fontSize = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
+        kt += `            ${sizeEnum}.${s.toUpperCase()} -> ${fontSize}f\n`;
+      }
     }
     kt += `        }\n`;
   } else {

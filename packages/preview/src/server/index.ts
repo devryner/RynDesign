@@ -29,12 +29,21 @@ export async function startPreviewServer(options: PreviewServerOptions = {}): Pr
   setupWsHandler(wss, builder);
 
   // Create Vite dev server for client SPA
+  let reactPlugin;
+  try {
+    const mod = await import('@vitejs/plugin-react');
+    reactPlugin = (mod.default ?? mod)();
+  } catch {
+    // Plugin not available, proceed without it
+  }
+
   const vite = await createViteServer({
     root: path.resolve(__dirname, '../client'),
     server: {
       middlewareMode: true,
       hmr: { server },
     },
+    plugins: reactPlugin ? [reactPlugin] : [],
     appType: 'spa',
   });
 

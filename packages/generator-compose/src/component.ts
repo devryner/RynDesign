@@ -97,12 +97,18 @@ function generateComposable(comp: ResolvedComponent, options: ComposeGeneratorOp
   kt += `    val colors = DesignTheme.colors\n\n`;
 
   // Background color resolution
+  const { variantTokens } = comp;
+  const defaultSize = definition.variants.size?.default ?? 'md';
   if (definition.variants.variant) {
     const variantEnum = `${name}Variant`;
     kt += `    val backgroundColor = when (variant) {\n`;
     for (const v of definition.variants.variant.values) {
+      const token = variantTokens?.[v]?.[defaultSize]?.background;
       if (v === 'ghost' || v === 'outline') {
         kt += `        ${variantEnum}.${v.toUpperCase()} -> Color.Transparent\n`;
+      } else if (token && token.$value.type === 'color') {
+        const tokenName = token.path.join('_').replace(/[.-]/g, '_');
+        kt += `        ${variantEnum}.${v.toUpperCase()} -> colors.${tokenName}\n`;
       } else {
         kt += `        ${variantEnum}.${v.toUpperCase()} -> colors.color_${v}\n`;
       }
@@ -111,7 +117,11 @@ function generateComposable(comp: ResolvedComponent, options: ComposeGeneratorOp
 
     kt += `    val contentColor = when (variant) {\n`;
     for (const v of definition.variants.variant.values) {
-      if (v === 'primary' || v === 'secondary') {
+      const token = variantTokens?.[v]?.[defaultSize]?.textColor;
+      if (token && token.$value.type === 'color') {
+        const tokenName = token.path.join('_').replace(/[.-]/g, '_');
+        kt += `        ${variantEnum}.${v.toUpperCase()} -> colors.${tokenName}\n`;
+      } else if (v === 'primary' || v === 'secondary') {
         kt += `        ${variantEnum}.${v.toUpperCase()} -> Color.White\n`;
       } else {
         kt += `        ${variantEnum}.${v.toUpperCase()} -> colors.color_${v}\n`;
@@ -123,24 +133,41 @@ function generateComposable(comp: ResolvedComponent, options: ComposeGeneratorOp
   // Size resolution
   if (definition.variants.size) {
     const sizeEnum = `${name}Size`;
+    const defaultVariant = definition.variants.variant?.default ?? 'primary';
+
     kt += `    val horizontalPadding = when (size) {\n`;
     for (const s of definition.variants.size.values) {
-      const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
-      kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${padding}.dp\n`;
+      const token = variantTokens?.[defaultVariant]?.[s]?.paddingX;
+      if (token && token.$value.type === 'dimension') {
+        kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${token.$value.value}.dp\n`;
+      } else {
+        const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
+        kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${padding}.dp\n`;
+      }
     }
     kt += `    }\n\n`;
 
     kt += `    val verticalPadding = when (size) {\n`;
     for (const s of definition.variants.size.values) {
-      const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
-      kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${padding}.dp\n`;
+      const token = variantTokens?.[defaultVariant]?.[s]?.paddingY;
+      if (token && token.$value.type === 'dimension') {
+        kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${token.$value.value}.dp\n`;
+      } else {
+        const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
+        kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${padding}.dp\n`;
+      }
     }
     kt += `    }\n\n`;
 
     kt += `    val fontSize = when (size) {\n`;
     for (const s of definition.variants.size.values) {
-      const size = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
-      kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${size}.sp\n`;
+      const token = variantTokens?.[defaultVariant]?.[s]?.fontSize;
+      if (token && token.$value.type === 'dimension') {
+        kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${token.$value.value}.sp\n`;
+      } else {
+        const fs = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
+        kt += `        ${sizeEnum}.${s.toUpperCase()} -> ${fs}.sp\n`;
+      }
     }
     kt += `    }\n\n`;
   }

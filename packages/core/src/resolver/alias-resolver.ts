@@ -4,6 +4,29 @@ import { buildDependencyGraph, topologicalSort, extractReferences } from './cycl
 
 const ALIAS_REGEX = /\{([^}]+)\}/g;
 
+/**
+ * Build a reverse reference map: Map<referencedTokenPath, Set<referencingTokenPath>>
+ * This must be called before alias resolution to capture original references.
+ */
+export function buildReferenceMap(tree: RawTokenTree): Map<string, Set<string>> {
+  const tokenMap = new Map<string, RawTokenTree>();
+  flattenTokens(tree, [], tokenMap);
+
+  const reverseMap = new Map<string, Set<string>>();
+
+  for (const [path, token] of tokenMap) {
+    const refs = extractReferences(token['$value']);
+    for (const ref of refs) {
+      if (!reverseMap.has(ref)) {
+        reverseMap.set(ref, new Set());
+      }
+      reverseMap.get(ref)!.add(path);
+    }
+  }
+
+  return reverseMap;
+}
+
 export function resolveAliases(tree: RawTokenTree): RawTokenTree {
   // 1. Flatten all tokens into a map
   const tokenMap = new Map<string, RawTokenTree>();

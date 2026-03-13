@@ -199,7 +199,7 @@ function generateUIKitView(comp: ResolvedComponent, options: UIKitGeneratorOptio
   }
 
   // Computed style properties
-  swift += generateUIKitComputedProperties(definition, name);
+  swift += generateUIKitComputedProperties(comp, name);
 
   // Touch highlight
   swift += `    // MARK: - Touch Handling\n\n`;
@@ -230,23 +230,29 @@ function generateUIKitView(comp: ResolvedComponent, options: UIKitGeneratorOptio
   return swift;
 }
 
-function generateUIKitComputedProperties(definition: ResolvedComponent['definition'], name: string): string {
+function generateUIKitComputedProperties(comp: ResolvedComponent, name: string): string {
+  const { definition, variantTokens } = comp;
   let swift = `    // MARK: - Style Properties\n\n`;
+  const defaultSize = definition.variants.size?.default ?? 'md';
 
   // Background color
   swift += `    private var currentBackgroundColor: UIColor {\n`;
   if (definition.variants.variant) {
     swift += `        switch variant {\n`;
     for (const v of definition.variants.variant.values) {
+      const token = variantTokens?.[v]?.[defaultSize]?.background;
       if (v === 'ghost' || v === 'outline') {
         swift += `        case .${v}: return .clear\n`;
+      } else if (token && token.$value.type === 'color') {
+        const tokenName = token.path.join('_').replace(/[.-]/g, '_');
+        swift += `        case .${v}: return UIColor.DesignSystem.${tokenName}\n`;
       } else {
-        swift += `        case .${v}: return UIColor.DesignSystem.${v}\n`;
+        swift += `        case .${v}: return UIColor.DesignSystem.color_${v}\n`;
       }
     }
     swift += `        }\n`;
   } else {
-    swift += `        return UIColor.DesignSystem.primary\n`;
+    swift += `        return UIColor.DesignSystem.color_primary\n`;
   }
   swift += `    }\n\n`;
 
@@ -255,10 +261,14 @@ function generateUIKitComputedProperties(definition: ResolvedComponent['definiti
   if (definition.variants.variant) {
     swift += `        switch variant {\n`;
     for (const v of definition.variants.variant.values) {
-      if (v === 'primary' || v === 'secondary') {
+      const token = variantTokens?.[v]?.[defaultSize]?.textColor;
+      if (token && token.$value.type === 'color') {
+        const tokenName = token.path.join('_').replace(/[.-]/g, '_');
+        swift += `        case .${v}: return UIColor.DesignSystem.${tokenName}\n`;
+      } else if (v === 'primary' || v === 'secondary') {
         swift += `        case .${v}: return .white\n`;
       } else {
-        swift += `        case .${v}: return UIColor.DesignSystem.${v}\n`;
+        swift += `        case .${v}: return UIColor.DesignSystem.color_${v}\n`;
       }
     }
     swift += `        }\n`;
@@ -277,8 +287,14 @@ function generateUIKitComputedProperties(definition: ResolvedComponent['definiti
   if (definition.variants.size) {
     swift += `        switch size {\n`;
     for (const s of definition.variants.size.values) {
-      const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
-      swift += `        case .${s}: return ${padding}\n`;
+      const defaultVariant = definition.variants.variant?.default ?? 'primary';
+      const token = variantTokens?.[defaultVariant]?.[s]?.paddingX;
+      if (token && token.$value.type === 'dimension') {
+        swift += `        case .${s}: return ${token.$value.value}\n`;
+      } else {
+        const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
+        swift += `        case .${s}: return ${padding}\n`;
+      }
     }
     swift += `        }\n`;
   } else {
@@ -291,8 +307,14 @@ function generateUIKitComputedProperties(definition: ResolvedComponent['definiti
   if (definition.variants.size) {
     swift += `        switch size {\n`;
     for (const s of definition.variants.size.values) {
-      const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
-      swift += `        case .${s}: return ${padding}\n`;
+      const defaultVariant = definition.variants.variant?.default ?? 'primary';
+      const token = variantTokens?.[defaultVariant]?.[s]?.paddingY;
+      if (token && token.$value.type === 'dimension') {
+        swift += `        case .${s}: return ${token.$value.value}\n`;
+      } else {
+        const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
+        swift += `        case .${s}: return ${padding}\n`;
+      }
     }
     swift += `        }\n`;
   } else {
@@ -305,8 +327,14 @@ function generateUIKitComputedProperties(definition: ResolvedComponent['definiti
   if (definition.variants.size) {
     swift += `        switch size {\n`;
     for (const s of definition.variants.size.values) {
-      const fontSize = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
-      swift += `        case .${s}: return .systemFont(ofSize: ${fontSize}, weight: .semibold)\n`;
+      const defaultVariant = definition.variants.variant?.default ?? 'primary';
+      const token = variantTokens?.[defaultVariant]?.[s]?.fontSize;
+      if (token && token.$value.type === 'dimension') {
+        swift += `        case .${s}: return .systemFont(ofSize: ${token.$value.value}, weight: .semibold)\n`;
+      } else {
+        const fontSize = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
+        swift += `        case .${s}: return .systemFont(ofSize: ${fontSize}, weight: .semibold)\n`;
+      }
     }
     swift += `        }\n`;
   } else {

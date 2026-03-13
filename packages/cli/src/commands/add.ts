@@ -6,6 +6,30 @@ import path from 'node:path';
 
 const AVAILABLE_COMPONENTS = ['button', 'input', 'card', 'checkbox', 'toggle', 'badge', 'avatar'];
 
+// Token dependencies for each component
+const COMPONENT_TOKENS: Record<string, Record<string, any>> = {
+  button: {
+    'component.button': {
+      $type: 'color',
+      primary: {
+        background: { $value: '{color.primary}' },
+        text: { $value: '{color.white}' },
+        hover: { background: { $value: '{color.primary}' } },
+        pressed: { background: { $value: '{color.primary}' } },
+      },
+      secondary: {
+        background: { $value: '{color.secondary}' },
+        text: { $value: '{color.white}' },
+      },
+      borderRadius: { $type: 'dimension', $value: '8px' },
+      sm: { paddingX: { $type: 'dimension', $value: '12px' }, paddingY: { $type: 'dimension', $value: '6px' }, fontSize: { $type: 'dimension', $value: '14px' } },
+      md: { paddingX: { $type: 'dimension', $value: '16px' }, paddingY: { $type: 'dimension', $value: '10px' }, fontSize: { $type: 'dimension', $value: '16px' } },
+      lg: { paddingX: { $type: 'dimension', $value: '24px' }, paddingY: { $type: 'dimension', $value: '14px' }, fontSize: { $type: 'dimension', $value: '18px' } },
+      disabled: { background: { $value: '{color.gray.300}' } },
+    },
+  },
+};
+
 export default defineCommand({
   meta: {
     name: 'add',
@@ -16,6 +40,11 @@ export default defineCommand({
       type: 'positional',
       description: 'Component name to add',
       required: false,
+    },
+    'with-tokens': {
+      type: 'boolean',
+      description: 'Also scaffold component tokens',
+      default: false,
     },
   },
   async run({ args }) {
@@ -48,14 +77,47 @@ export default defineCommand({
     }
 
     // Try to copy from bundled components
-    try {
-      const srcPath = path.resolve(__dirname, `../../components/${name}.component.json`);
-      const content = await fs.readFile(srcPath, 'utf-8');
-      await fs.writeFile(destPath, content);
-      console.log(pc.green(`✓ Added ${name} component to ${destPath}`));
-    } catch {
+    let copied = false;
+    const searchPaths = [
+      path.resolve(__dirname, `../../components/${name}.component.json`),
+      // ESM fallback
+      typeof __dirname !== 'undefined'
+        ? path.resolve(__dirname, `../../components/${name}.component.json`)
+        : path.resolve(new URL('.', import.meta.url).pathname, `../../components/${name}.component.json`),
+    ];
+
+    for (const srcPath of searchPaths) {
+      try {
+        const content = await fs.readFile(srcPath, 'utf-8');
+        await fs.writeFile(destPath, content);
+        console.log(pc.green(`  Added ${name} component to ${destPath}`));
+        copied = true;
+        break;
+      } catch {
+        continue;
+      }
+    }
+
+    if (!copied) {
       console.error(pc.red(`Component "${name}" not found in available components.`));
       console.log(pc.gray(`Available: ${AVAILABLE_COMPONENTS.join(', ')}`));
+      return;
+    }
+
+    // Scaffold component tokens if requested
+    const withTokens = args['with-tokens'] as boolean;
+    if (withTokens && COMPONENT_TOKENS[name]) {
+      const tokensDir = path.join(cwd, 'tokens');
+      await fs.mkdir(tokensDir, { recursive: true });
+      const tokenFile = path.join(tokensDir, `${name}.tokens.json`);
+
+      try {
+        await fs.access(tokenFile);
+        console.log(pc.yellow(`  Token file already exists: ${tokenFile}`));
+      } catch {
+        await fs.writeFile(tokenFile, JSON.stringify(COMPONENT_TOKENS[name], null, 2));
+        console.log(pc.green(`  Created component tokens: ${tokenFile}`));
+      }
     }
   },
 });

@@ -29,6 +29,7 @@ export interface GeneratorContext {
   config: GeneratorConfig;
   outputDir: string;
   helpers: GeneratorHelpers;
+  components?: ResolvedComponent[];
 }
 
 export interface PreviewAdapter {

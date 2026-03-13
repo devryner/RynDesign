@@ -5,7 +5,7 @@ export { createGeneratorHelpers, type GeneratorHelpers } from './helpers.js';
 export { buildTokenSet, type BuildConfig } from './pipeline.js';
 
 // Component Loader
-export { loadComponents, resolveComponent } from './component-loader.js';
+export { loadComponents, resolveComponent, resolveComponentForTheme } from './component-loader.js';
 
 // Parser
 export { readTokenFile, readAndMergeTokenFiles, deepMerge, type RawTokenTree } from './parser/reader.js';
@@ -13,10 +13,11 @@ export { validateTree } from './parser/validator.js';
 export { TokenParseError, TokenValidationError, CircularReferenceError, type ValidationIssue } from './parser/errors.js';
 
 // Resolver
-export { resolveAliases } from './resolver/alias-resolver.js';
+export { resolveAliases, buildReferenceMap } from './resolver/alias-resolver.js';
 export { inheritTypes } from './resolver/type-inheritor.js';
 export { resolveThemes, type ThemeConfig } from './resolver/theme-resolver.js';
 export { buildDependencyGraph, topologicalSort, extractReferences } from './resolver/cycle-detector.js';
+export { postValidate, type PostValidationIssue } from './resolver/post-validator.js';
 
 // IR
 export { buildTokensFromTree, buildGroupsFromTree } from './ir/builder.js';

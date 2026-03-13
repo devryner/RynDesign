@@ -60,7 +60,7 @@ function generateSwiftUIView(comp: ResolvedComponent, options: SwiftUIGeneratorO
   }
 
   // Generate computed properties for token-based styling
-  swift += generateComputedProperties(definition);
+  swift += generateComputedProperties(comp);
 
   // Generate body
   swift += `    var body: some View {\n`;
@@ -89,7 +89,8 @@ function generateSwiftUIView(comp: ResolvedComponent, options: SwiftUIGeneratorO
   return swift;
 }
 
-function generateComputedProperties(definition: ResolvedComponent['definition']): string {
+function generateComputedProperties(comp: ResolvedComponent): string {
+  const { definition, variantTokens } = comp;
   let swift = '';
 
   // Background color computed property
@@ -98,8 +99,13 @@ function generateComputedProperties(definition: ResolvedComponent['definition'])
     if (definition.variants.variant) {
       swift += `        switch variant {\n`;
       for (const v of definition.variants.variant.values) {
+        const defaultSize = definition.variants.size?.default ?? 'md';
+        const token = variantTokens?.[v]?.[defaultSize]?.background;
         if (v === 'ghost' || v === 'outline') {
           swift += `        case .${v}: return .clear\n`;
+        } else if (token && token.$value.type === 'color') {
+          const name = token.path.join('_').replace(/[.-]/g, '_');
+          swift += `        case .${v}: return Color.DesignSystem.${name}\n`;
         } else {
           swift += `        case .${v}: return Color.DesignSystem.color_${v}\n`;
         }
@@ -117,7 +123,12 @@ function generateComputedProperties(definition: ResolvedComponent['definition'])
     if (definition.variants.variant) {
       swift += `        switch variant {\n`;
       for (const v of definition.variants.variant.values) {
-        if (v === 'primary' || v === 'secondary') {
+        const defaultSize = definition.variants.size?.default ?? 'md';
+        const token = variantTokens?.[v]?.[defaultSize]?.textColor;
+        if (token && token.$value.type === 'color') {
+          const name = token.path.join('_').replace(/[.-]/g, '_');
+          swift += `        case .${v}: return Color.DesignSystem.${name}\n`;
+        } else if (v === 'primary' || v === 'secondary') {
           swift += `        case .${v}: return .white\n`;
         } else {
           swift += `        case .${v}: return Color.DesignSystem.color_${v}\n`;
@@ -130,14 +141,20 @@ function generateComputedProperties(definition: ResolvedComponent['definition'])
     swift += `    }\n\n`;
   }
 
-  // Padding computed properties
+  // Padding computed properties using variantTokens
   if (definition.tokenMapping.paddingX || definition.tokenMapping.paddingY) {
     swift += `    private var horizontalPadding: CGFloat {\n`;
     if (definition.variants.size) {
       swift += `        switch size {\n`;
       for (const s of definition.variants.size.values) {
-        const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
-        swift += `        case .${s}: return ${padding}\n`;
+        const defaultVariant = definition.variants.variant?.default ?? 'primary';
+        const token = variantTokens?.[defaultVariant]?.[s]?.paddingX;
+        if (token && token.$value.type === 'dimension') {
+          swift += `        case .${s}: return ${token.$value.value}\n`;
+        } else {
+          const padding = s === 'sm' ? 12 : s === 'md' ? 16 : 24;
+          swift += `        case .${s}: return ${padding}\n`;
+        }
       }
       swift += `        }\n`;
     } else {
@@ -149,8 +166,14 @@ function generateComputedProperties(definition: ResolvedComponent['definition'])
     if (definition.variants.size) {
       swift += `        switch size {\n`;
       for (const s of definition.variants.size.values) {
-        const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
-        swift += `        case .${s}: return ${padding}\n`;
+        const defaultVariant = definition.variants.variant?.default ?? 'primary';
+        const token = variantTokens?.[defaultVariant]?.[s]?.paddingY;
+        if (token && token.$value.type === 'dimension') {
+          swift += `        case .${s}: return ${token.$value.value}\n`;
+        } else {
+          const padding = s === 'sm' ? 6 : s === 'md' ? 10 : 14;
+          swift += `        case .${s}: return ${padding}\n`;
+        }
       }
       swift += `        }\n`;
     } else {
@@ -159,14 +182,20 @@ function generateComputedProperties(definition: ResolvedComponent['definition'])
     swift += `    }\n\n`;
   }
 
-  // Font size computed property
+  // Font size computed property using variantTokens
   if (definition.tokenMapping.fontSize) {
     swift += `    private var fontSize: CGFloat {\n`;
     if (definition.variants.size) {
       swift += `        switch size {\n`;
       for (const s of definition.variants.size.values) {
-        const size = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
-        swift += `        case .${s}: return ${size}\n`;
+        const defaultVariant = definition.variants.variant?.default ?? 'primary';
+        const token = variantTokens?.[defaultVariant]?.[s]?.fontSize;
+        if (token && token.$value.type === 'dimension') {
+          swift += `        case .${s}: return ${token.$value.value}\n`;
+        } else {
+          const size = s === 'sm' ? 14 : s === 'md' ? 16 : 18;
+          swift += `        case .${s}: return ${size}\n`;
+        }
       }
       swift += `        }\n`;
     } else {

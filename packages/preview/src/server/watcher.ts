@@ -36,6 +36,7 @@ export function setupWatcher(
           changedTokens: [],
           timestamp: Date.now(),
           tokenSet: builder.getTokenSet(),
+          components: builder.getComponents(),
         });
 
         for (const client of wss.clients) {
