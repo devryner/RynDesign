@@ -1,5 +1,11 @@
 # @ryndesign/cli
 
+## 0.2.6
+
+### Patch Changes
+
+- Pass generators from config to preview server so Generated Code snippets work for all components.
+
 ## 0.2.5
 
 ### Patch Changes

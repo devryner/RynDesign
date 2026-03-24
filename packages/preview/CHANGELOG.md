@@ -1,5 +1,11 @@
 # @ryndesign/preview
 
+## 0.1.5
+
+### Patch Changes
+
+- Pass generators from config to preview server so Generated Code snippets work for all components.
+
 ## 0.1.4
 
 ### Patch Changes
