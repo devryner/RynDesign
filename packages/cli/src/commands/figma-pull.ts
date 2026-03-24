@@ -20,8 +20,15 @@ export default defineCommand({
     },
     config: {
       type: 'string',
+      alias: 'c',
       description: 'Path to config file',
       default: 'ryndesign.config.ts',
+    },
+    output: {
+      type: 'string',
+      alias: 'o',
+      description: 'Output file path',
+      default: 'tokens/figma.tokens.json',
     },
     merge: {
       type: 'boolean',
@@ -102,7 +109,7 @@ export default defineCommand({
         }
       } else {
         // Write all to single file
-        const outPath = path.resolve(cwd, 'tokens/figma.tokens.json');
+        const outPath = path.resolve(cwd, args.output as string);
         await fs.mkdir(path.dirname(outPath), { recursive: true });
 
         if (shouldMerge) {

@@ -1,6 +1,7 @@
 import { defineCommand } from 'citty';
 import pc from 'picocolors';
 import { readAndMergeTokenFiles, validateTree, buildTokenSet, postValidate, TokenValidationError } from '@ryndesign/core';
+import { loadConfig } from '../config.js';
 
 export default defineCommand({
   meta: {
@@ -13,6 +14,12 @@ export default defineCommand({
       description: 'Path to token file(s)',
       required: false,
     },
+    config: {
+      type: 'string',
+      alias: 'c',
+      description: 'Path to config file',
+      default: 'ryndesign.config.ts',
+    },
     strict: {
       type: 'boolean',
       description: 'Treat warnings as errors',
@@ -22,7 +29,10 @@ export default defineCommand({
   async run({ args }) {
     console.log(pc.cyan('  RynDesign Validate\n'));
 
-    const patterns = args.path ? [args.path as string] : ['tokens/**/*.tokens.json'];
+    const config = await loadConfig(args.config as string);
+    const patterns = args.path
+      ? [args.path as string]
+      : config?.tokens ?? ['tokens/**/*.tokens.json'];
 
     try {
       // Step 1: Parse and validate structure

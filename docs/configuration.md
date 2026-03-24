@@ -89,9 +89,9 @@ Theme override files only need to define the tokens that differ. Everything else
 Array of generator plugins to use.
 
 ```typescript
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
-import { cssGenerator } from '@ryndesign/generator-css';
+import reactGenerator from '@ryndesign/generator-react';
+import swiftuiGenerator from '@ryndesign/generator-swiftui';
+import cssGenerator from '@ryndesign/generator-css';
 
 // ...
 generators: [
@@ -178,10 +178,10 @@ hooks: {
 
 ```typescript
 import { defineConfig } from '@ryndesign/cli';
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
-import { cssGenerator } from '@ryndesign/generator-css';
-import { tailwindGenerator } from '@ryndesign/generator-tailwind';
+import reactGenerator from '@ryndesign/generator-react';
+import swiftuiGenerator from '@ryndesign/generator-swiftui';
+import cssGenerator from '@ryndesign/generator-css';
+import tailwindGenerator from '@ryndesign/generator-tailwind';
 
 export default defineConfig({
   tokens: ['tokens/**/*.tokens.json'],

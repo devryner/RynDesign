@@ -87,9 +87,9 @@ interface ThemeConfig {
 사용할 제너레이터 플러그인 배열입니다.
 
 ```typescript
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
-import { cssGenerator } from '@ryndesign/generator-css';
+import reactGenerator from '@ryndesign/generator-react';
+import swiftuiGenerator from '@ryndesign/generator-swiftui';
+import cssGenerator from '@ryndesign/generator-css';
 
 // ...
 generators: [
@@ -176,10 +176,10 @@ hooks: {
 
 ```typescript
 import { defineConfig } from '@ryndesign/cli';
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
-import { cssGenerator } from '@ryndesign/generator-css';
-import { tailwindGenerator } from '@ryndesign/generator-tailwind';
+import reactGenerator from '@ryndesign/generator-react';
+import swiftuiGenerator from '@ryndesign/generator-swiftui';
+import cssGenerator from '@ryndesign/generator-css';
+import tailwindGenerator from '@ryndesign/generator-tailwind';
 
 export default defineConfig({
   tokens: ['tokens/**/*.tokens.json'],

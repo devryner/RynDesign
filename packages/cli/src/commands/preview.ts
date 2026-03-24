@@ -1,5 +1,6 @@
 import { defineCommand } from 'citty';
 import pc from 'picocolors';
+import { loadConfig } from '../config.js';
 
 export default defineCommand({
   meta: {
@@ -7,10 +8,15 @@ export default defineCommand({
     description: 'Start the design system preview server',
   },
   args: {
+    config: {
+      type: 'string',
+      alias: 'c',
+      description: 'Path to config file',
+      default: 'ryndesign.config.ts',
+    },
     port: {
       type: 'string',
       description: 'Port to run the preview server on',
-      default: '4400',
     },
     open: {
       type: 'boolean',
@@ -21,10 +27,15 @@ export default defineCommand({
   async run({ args }) {
     console.log(pc.cyan('🖥  RynDesign Preview\n'));
 
+    const config = await loadConfig(args.config as string);
+    const port = args.port
+      ? parseInt(args.port as string, 10)
+      : config?.preview?.port ?? 4400;
+
     try {
       const { startPreviewServer } = await import('@ryndesign/preview');
       await startPreviewServer({
-        port: parseInt(args.port as string, 10),
+        port,
         open: args.open as boolean,
       });
     } catch {

@@ -12,12 +12,14 @@ export default defineCommand({
     description: 'Generate design system files for target platforms',
   },
   args: {
-    platforms: {
+    platform: {
       type: 'string',
+      alias: 'p',
       description: 'Comma-separated list of platforms to generate',
     },
     watch: {
       type: 'boolean',
+      alias: 'w',
       description: 'Watch for changes and regenerate',
       default: false,
     },
@@ -33,6 +35,7 @@ export default defineCommand({
     },
     config: {
       type: 'string',
+      alias: 'c',
       description: 'Path to config file',
       default: 'ryndesign.config.ts',
     },
@@ -73,8 +76,8 @@ export default defineCommand({
 
     // Filter generators by platform if specified
     let generators = config.generators ?? [];
-    if (args.platforms) {
-      const targetPlatforms = (args.platforms as string).split(',').map(s => s.trim());
+    if (args.platform) {
+      const targetPlatforms = (args.platform as string).split(',').map(s => s.trim());
       generators = generators.filter(g => targetPlatforms.includes(g.name));
     }
 

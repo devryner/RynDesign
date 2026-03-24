@@ -7,7 +7,7 @@ RynDesign이 제공하는 모든 제너레이터의 옵션과 생성 파일 목�
 ### React
 
 ```typescript
-import { reactGenerator } from '@ryndesign/generator-react';
+import reactGenerator from '@ryndesign/generator-react';
 
 reactGenerator({
   outDir?: string,
@@ -30,7 +30,7 @@ reactGenerator({
 ### Vue
 
 ```typescript
-import { vueGenerator } from '@ryndesign/generator-vue';
+import vueGenerator from '@ryndesign/generator-vue';
 
 vueGenerator({
   outDir?: string,
@@ -52,7 +52,7 @@ vueGenerator({
 ### Svelte
 
 ```typescript
-import { svelteGenerator } from '@ryndesign/generator-svelte';
+import svelteGenerator from '@ryndesign/generator-svelte';
 
 svelteGenerator({
   outDir?: string,
@@ -74,7 +74,7 @@ svelteGenerator({
 ### Rails (ViewComponent)
 
 ```typescript
-import { railsGenerator } from '@ryndesign/generator-rails';
+import railsGenerator from '@ryndesign/generator-rails';
 
 railsGenerator({
   outDir?: string,
@@ -96,7 +96,7 @@ railsGenerator({
 ### CSS/SCSS
 
 ```typescript
-import { cssGenerator } from '@ryndesign/generator-css';
+import cssGenerator from '@ryndesign/generator-css';
 
 cssGenerator({
   outDir?: string,
@@ -127,7 +127,7 @@ cssGenerator({
 ### Tailwind CSS
 
 ```typescript
-import { tailwindGenerator } from '@ryndesign/generator-tailwind';
+import tailwindGenerator from '@ryndesign/generator-tailwind';
 
 tailwindGenerator({
   outDir?: string,
@@ -169,7 +169,7 @@ export function getButtonClasses(variant = 'primary', size = 'md', disabled = fa
 ### SwiftUI
 
 ```typescript
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
+import swiftuiGenerator from '@ryndesign/generator-swiftui';
 
 swiftuiGenerator({
   outDir?: string,
@@ -197,7 +197,7 @@ swiftuiGenerator({
 ### UIKit
 
 ```typescript
-import { uikitGenerator } from '@ryndesign/generator-uikit';
+import uikitGenerator from '@ryndesign/generator-uikit';
 
 uikitGenerator({
   outDir?: string,
@@ -223,7 +223,7 @@ uikitGenerator({
 ### Jetpack Compose
 
 ```typescript
-import { composeGenerator } from '@ryndesign/generator-compose';
+import composeGenerator from '@ryndesign/generator-compose';
 
 composeGenerator({
   outDir?: string,
@@ -246,7 +246,7 @@ composeGenerator({
 ### Android View (XML)
 
 ```typescript
-import { androidViewGenerator } from '@ryndesign/generator-android-view';
+import androidViewGenerator from '@ryndesign/generator-android-view';
 
 androidViewGenerator({
   outDir?: string,
