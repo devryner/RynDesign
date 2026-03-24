@@ -32,15 +32,18 @@ export default defineCommand({
       ? parseInt(args.port as string, 10)
       : config?.preview?.port ?? 4400;
 
+    let previewModule;
     try {
-      const { startPreviewServer } = await import('@ryndesign/preview');
-      await startPreviewServer({
-        port,
-        open: args.open as boolean,
-      });
+      previewModule = await import('@ryndesign/preview');
     } catch {
       console.log(pc.yellow('Preview package not found. Install @ryndesign/preview'));
-      console.log(pc.gray('  pnpm add @ryndesign/preview'));
+      console.log(pc.gray('  npm install @ryndesign/preview'));
+      return;
     }
+
+    await previewModule.startPreviewServer({
+      port,
+      open: args.open as boolean,
+    });
   },
 });
