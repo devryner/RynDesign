@@ -1,5 +1,11 @@
 # @ryndesign/cli
 
+## 0.2.1
+
+### Patch Changes
+
+- 04e032e: fix: add missing gray scale values to minimal template for dark theme compatibility
+
 ## 0.2.0
 
 ### Minor Changes
