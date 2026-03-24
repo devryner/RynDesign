@@ -1,0 +1,31 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Button",
+  "category": "actions",
+  "props": {
+    "label": { "type": "string", "required": true },
+    "disabled": { "type": "boolean", "default": false },
+    "onPress": { "type": "callback" }
+  },
+  "variants": {
+    "variant": { "values": ["primary", "secondary", "outline", "ghost"], "default": "primary" },
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "slots": {
+    "leadingIcon": { "optional": true },
+    "trailingIcon": { "optional": true }
+  },
+  "tokenMapping": {
+    "background": "component.button.{variant}.background",
+    "textColor": "component.button.{variant}.text",
+    "borderRadius": "component.button.borderRadius",
+    "paddingX": "component.button.{size}.paddingX",
+    "paddingY": "component.button.{size}.paddingY",
+    "fontSize": "component.button.{size}.fontSize"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "background": "component.button.{variant}.hover.background" } },
+    "pressed": { "tokenOverrides": { "background": "component.button.{variant}.pressed.background" } },
+    "disabled": { "tokenOverrides": { "background": "component.button.disabled.background" } }
+  }
+}

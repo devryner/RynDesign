@@ -5,6 +5,14 @@ import fs from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+function getPackageRoot(): string {
+  if (typeof __dirname !== 'undefined') {
+    return path.resolve(__dirname, '..');
+  }
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+}
 
 export default defineCommand({
   meta: {
@@ -15,44 +23,56 @@ export default defineCommand({
     template: {
       type: 'string',
       description: 'Template to use (minimal or full)',
-      default: 'minimal',
+      default: 'full',
     },
     platforms: {
       type: 'string',
       description: 'Comma-separated list of target platforms',
     },
+    'dark-mode': {
+      type: 'boolean',
+      description: 'Enable dark mode support',
+    },
   },
   async run({ args }) {
-    p.intro(pc.bgCyan(pc.black(' RynDesign Init ')));
+    const isInteractive = !args.platforms || args['dark-mode'] === undefined;
 
-    const template = args.template || await p.select({
-      message: 'Choose a template:',
-      options: [
-        { value: 'minimal', label: 'Minimal', hint: 'Basic color, spacing, typography tokens' },
-        { value: 'full', label: 'Full', hint: 'Complete token set with shadows, borders, gradients' },
-      ],
-    }) as string;
+    if (isInteractive) {
+      p.intro(pc.bgCyan(pc.black(' RynDesign Init ')));
+    }
+
+    const template = args.template || (isInteractive
+      ? await p.select({
+          message: 'Choose a template:',
+          options: [
+            { value: 'minimal', label: 'Minimal', hint: 'Basic color, spacing, typography tokens' },
+            { value: 'full', label: 'Full', hint: 'Complete token set with shadows, borders, gradients' },
+          ],
+        }) as string
+      : 'full');
 
     if (p.isCancel(template)) {
       p.cancel('Operation cancelled.');
       process.exit(0);
     }
 
-    const platformsInput = args.platforms || await p.multiselect({
-      message: 'Select target platforms:',
-      initialValues: ['react', 'swiftui'],
-      options: [
-        { value: 'react', label: 'React', hint: 'recommended' },
-        { value: 'swiftui', label: 'SwiftUI', hint: 'recommended' },
-        { value: 'vue', label: 'Vue' },
-        { value: 'svelte', label: 'Svelte' },
-        { value: 'rails', label: 'Rails' },
-        { value: 'uikit', label: 'UIKit' },
-        { value: 'compose', label: 'Jetpack Compose' },
-        { value: 'android-view', label: 'Android View' },
-      ],
-      required: true,
-    }) as string[];
+    const platformsInput = args.platforms || (isInteractive
+      ? await p.multiselect({
+          message: 'Select target platforms:',
+          initialValues: ['react', 'swiftui'],
+          options: [
+            { value: 'react', label: 'React', hint: 'recommended' },
+            { value: 'swiftui', label: 'SwiftUI', hint: 'recommended' },
+            { value: 'vue', label: 'Vue' },
+            { value: 'svelte', label: 'Svelte' },
+            { value: 'rails', label: 'Rails' },
+            { value: 'uikit', label: 'UIKit' },
+            { value: 'compose', label: 'Jetpack Compose' },
+            { value: 'android-view', label: 'Android View' },
+          ],
+          required: true,
+        }) as string[]
+      : ['react']);
 
     if (p.isCancel(platformsInput)) {
       p.cancel('Operation cancelled.');
@@ -63,20 +83,37 @@ export default defineCommand({
       ? platformsInput
       : (platformsInput as string).split(',').map(s => s.trim());
 
-    const darkMode = await p.confirm({
-      message: 'Enable dark mode support?',
-      initialValue: true,
-    });
+    const darkMode = args['dark-mode'] !== undefined
+      ? args['dark-mode']
+      : (isInteractive
+        ? await p.confirm({
+            message: 'Enable dark mode support?',
+            initialValue: true,
+          })
+        : true);
 
     if (p.isCancel(darkMode)) {
       p.cancel('Operation cancelled.');
       process.exit(0);
     }
 
-    const s = p.spinner();
-    s.start('Creating project files...');
+    const log = (msg: string) => {
+      if (isInteractive) return;
+      console.log(msg);
+    };
+
+    let spinner: ReturnType<typeof p.spinner> | undefined;
+    if (isInteractive) {
+      spinner = p.spinner();
+      spinner.start('Creating project files...');
+    } else {
+      log('Creating project files...');
+    }
 
     const cwd = process.cwd();
+    const pkgRoot = getPackageRoot();
+    const templateDir = path.join(pkgRoot, 'templates');
+    const componentsDir = path.join(pkgRoot, 'components');
 
     // Create directories
     await fs.mkdir(path.join(cwd, 'tokens'), { recursive: true });
@@ -84,14 +121,7 @@ export default defineCommand({
     await fs.mkdir(path.join(cwd, 'generated'), { recursive: true });
 
     // Copy template tokens
-    // ESM-compatible path resolution
-    const templateDir = path.resolve(
-      typeof __dirname !== 'undefined'
-        ? path.resolve(__dirname, '../../templates')
-        : path.resolve(new URL('.', import.meta.url).pathname, '../../templates')
-    );
     const templateFile = template === 'full' ? 'full.tokens.json' : 'minimal.tokens.json';
-
     try {
       const templateContent = await fs.readFile(
         path.join(templateDir, templateFile),
@@ -102,7 +132,6 @@ export default defineCommand({
         templateContent
       );
     } catch {
-      // If templates not found, create a basic one inline
       await fs.writeFile(
         path.join(cwd, 'tokens', 'base.tokens.json'),
         JSON.stringify(getDefaultTokens(), null, 2)
@@ -138,18 +167,24 @@ export default defineCommand({
     const configContent = generateConfig(platforms, darkMode as boolean);
     await fs.writeFile(path.join(cwd, 'ryndesign.config.ts'), configContent);
 
-    // Copy button component
-    try {
-      const buttonComp = await fs.readFile(
-        path.join(templateDir, '../components/button.component.json'),
-        'utf-8'
-      );
-      await fs.writeFile(
-        path.join(cwd, 'components', 'button.component.json'),
-        buttonComp
-      );
-    } catch {
-      // Skip if not found
+    // Copy component templates
+    const componentsToCopy = template === 'full'
+      ? ['button', 'input', 'card', 'checkbox', 'toggle', 'badge', 'avatar']
+      : ['button'];
+
+    for (const comp of componentsToCopy) {
+      try {
+        const content = await fs.readFile(
+          path.join(componentsDir, `${comp}.component.json`),
+          'utf-8'
+        );
+        await fs.writeFile(
+          path.join(cwd, 'components', `${comp}.component.json`),
+          content
+        );
+      } catch {
+        // Skip if not found
+      }
     }
 
     // Add generated/ to .gitignore
@@ -176,7 +211,6 @@ export default defineCommand({
       const pkgContent = await fs.readFile(pkgJsonPath, 'utf-8');
       pkg = JSON.parse(pkgContent);
     } catch {
-      // No package.json yet — create one
       const dirName = path.basename(cwd);
       pkg = {
         name: dirName,
@@ -191,40 +225,60 @@ export default defineCommand({
     if (!scripts['generate']) scripts['generate'] = 'ryndesign generate';
     if (!scripts['preview']) scripts['preview'] = 'ryndesign preview';
 
-    // Add generator packages as devDependencies
     if (!pkg.devDependencies || typeof pkg.devDependencies !== 'object') pkg.devDependencies = {};
     const devDeps = pkg.devDependencies as Record<string, string>;
     devDeps['@ryndesign/cli'] = 'latest';
+    devDeps['@ryndesign/preview'] = 'latest';
     for (const platform of platforms) {
       devDeps[`@ryndesign/generator-${platform}`] = 'latest';
     }
 
     await fs.writeFile(pkgJsonPath, JSON.stringify(pkg, null, 2) + '\n');
 
-    s.stop('Project files created!');
-
-    // Install dependencies
-    const installSpinner = p.spinner();
-    installSpinner.start('Installing dependencies...');
-    try {
-      const pm = detectPackageManager(cwd);
-      execSync(`${pm} install`, { cwd, stdio: 'pipe' });
-      installSpinner.stop('Dependencies installed!');
-    } catch {
-      installSpinner.stop(pc.yellow('Could not auto-install. Run `npm install` manually.'));
+    if (spinner) {
+      spinner.stop('Project files created!');
+    } else {
+      log('Project files created!');
     }
 
-    p.note(
-      [
-        `${pc.green('tokens/')}       - Your design tokens`,
-        `${pc.green('components/')}    - Component definitions`,
-        `${pc.green('generated/')}     - Generated output (gitignored)`,
-        `${pc.green('ryndesign.config.ts')} - Configuration`,
-      ].join('\n'),
-      'Project structure'
-    );
+    // Install dependencies
+    if (isInteractive) {
+      const installSpinner = p.spinner();
+      installSpinner.start('Installing dependencies...');
+      try {
+        const pm = detectPackageManager(cwd);
+        execSync(`${pm} install`, { cwd, stdio: 'pipe' });
+        installSpinner.stop('Dependencies installed!');
+      } catch {
+        installSpinner.stop(pc.yellow('Could not auto-install. Run `npm install` manually.'));
+      }
+    } else {
+      log('Installing dependencies...');
+      try {
+        const pm = detectPackageManager(cwd);
+        execSync(`${pm} install`, { cwd, stdio: 'pipe' });
+        log('Dependencies installed!');
+      } catch {
+        log('Could not auto-install. Run `npm install` manually.');
+      }
+    }
 
-    p.outro(pc.green('Run `ryndesign generate` to generate your design system!'));
+    if (isInteractive) {
+      p.note(
+        [
+          `${pc.green('tokens/')}       - Your design tokens`,
+          `${pc.green('components/')}    - Component definitions`,
+          `${pc.green('generated/')}     - Generated output (gitignored)`,
+          `${pc.green('ryndesign.config.ts')} - Configuration`,
+        ].join('\n'),
+        'Project structure'
+      );
+
+      p.outro(pc.green('Run `ryndesign generate` to generate your design system!'));
+    } else {
+      log('\nProject initialized successfully!');
+      log('Run `ryndesign generate` to generate your design system!');
+    }
   },
 });
 
@@ -336,7 +390,6 @@ function detectPackageManager(cwd: string): string {
     if (userAgent.startsWith('bun')) return 'bun';
   } catch {}
 
-  // Check for lock files
   if (existsSync(path.join(cwd, 'pnpm-lock.yaml'))) return 'pnpm';
   if (existsSync(path.join(cwd, 'yarn.lock'))) return 'yarn';
   if (existsSync(path.join(cwd, 'bun.lockb'))) return 'bun';

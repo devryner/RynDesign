@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Toggle",
+  "category": "forms",
+  "props": {
+    "checked": { "type": "boolean", "required": true },
+    "label": { "type": "string" },
+    "disabled": { "type": "boolean", "default": false },
+    "onChange": { "type": "callback" }
+  },
+  "variants": {
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "slots": {},
+  "tokenMapping": {
+    "trackBackground": "component.toggle.track.background",
+    "trackCheckedBackground": "component.toggle.track.checked.background",
+    "thumbBackground": "component.toggle.thumb.background",
+    "trackWidth": "component.toggle.{size}.trackWidth",
+    "trackHeight": "component.toggle.{size}.trackHeight",
+    "thumbSize": "component.toggle.{size}.thumbSize",
+    "borderRadius": "component.toggle.borderRadius",
+    "duration": "component.toggle.duration"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "trackBackground": "component.toggle.track.hover.background" } },
+    "disabled": { "tokenOverrides": { "trackBackground": "component.toggle.track.disabled.background" } }
+  }
+}

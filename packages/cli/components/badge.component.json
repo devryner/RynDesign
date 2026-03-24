@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Badge",
+  "category": "data-display",
+  "props": {
+    "label": { "type": "string", "required": true }
+  },
+  "variants": {
+    "variant": { "values": ["solid", "subtle", "outline"], "default": "subtle" },
+    "color": { "values": ["default", "primary", "success", "warning", "error"], "default": "default" },
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "slots": {
+    "leadingIcon": { "optional": true }
+  },
+  "tokenMapping": {
+    "background": "component.badge.{variant}.{color}.background",
+    "textColor": "component.badge.{variant}.{color}.text",
+    "borderColor": "component.badge.{variant}.{color}.border",
+    "borderRadius": "component.badge.borderRadius",
+    "paddingX": "component.badge.{size}.paddingX",
+    "paddingY": "component.badge.{size}.paddingY",
+    "fontSize": "component.badge.{size}.fontSize"
+  },
+  "states": {}
+}

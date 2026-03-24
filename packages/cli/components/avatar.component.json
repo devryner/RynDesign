@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Avatar",
+  "category": "data-display",
+  "props": {
+    "src": { "type": "string" },
+    "alt": { "type": "string" },
+    "name": { "type": "string" }
+  },
+  "variants": {
+    "size": { "values": ["xs", "sm", "md", "lg", "xl"], "default": "md" },
+    "shape": { "values": ["circle", "square"], "default": "circle" }
+  },
+  "slots": {
+    "badge": { "optional": true }
+  },
+  "tokenMapping": {
+    "size": "component.avatar.{size}.size",
+    "fontSize": "component.avatar.{size}.fontSize",
+    "background": "component.avatar.fallback.background",
+    "textColor": "component.avatar.fallback.text",
+    "borderRadius": "component.avatar.{shape}.borderRadius"
+  },
+  "states": {}
+}

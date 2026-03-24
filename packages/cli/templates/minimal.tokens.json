@@ -1,0 +1,72 @@
+{
+  "color": {
+    "$type": "color",
+    "primary": { "$value": "#3B82F6", "$description": "Primary brand color" },
+    "secondary": { "$value": "#6366F1", "$description": "Secondary brand color" },
+    "white": { "$value": "#FFFFFF" },
+    "black": { "$value": "#000000" },
+    "gray": {
+      "50": { "$value": "#F9FAFB" },
+      "100": { "$value": "#F3F4F6" },
+      "200": { "$value": "#E5E7EB" },
+      "300": { "$value": "#D1D5DB" },
+      "400": { "$value": "#9CA3AF" },
+      "500": { "$value": "#6B7280" },
+      "600": { "$value": "#4B5563" },
+      "700": { "$value": "#374151" },
+      "800": { "$value": "#1F2937" },
+      "900": { "$value": "#111827" }
+    },
+    "background": {
+      "primary": { "$value": "{color.white}" },
+      "secondary": { "$value": "{color.gray.50}" }
+    },
+    "text": {
+      "primary": { "$value": "{color.gray.900}" },
+      "secondary": { "$value": "{color.gray.600}" }
+    },
+    "border": {
+      "default": { "$value": "{color.gray.200}" }
+    }
+  },
+  "spacing": {
+    "$type": "dimension",
+    "xs": { "$value": "4px" },
+    "sm": { "$value": "8px" },
+    "md": { "$value": "16px" },
+    "lg": { "$value": "24px" },
+    "xl": { "$value": "32px" },
+    "2xl": { "$value": "48px" }
+  },
+  "borderRadius": {
+    "$type": "dimension",
+    "none": { "$value": "0px" },
+    "sm": { "$value": "4px" },
+    "md": { "$value": "8px" },
+    "lg": { "$value": "12px" },
+    "full": { "$value": "9999px" }
+  },
+  "fontSize": {
+    "$type": "dimension",
+    "xs": { "$value": "12px" },
+    "sm": { "$value": "14px" },
+    "md": { "$value": "16px" },
+    "lg": { "$value": "18px" },
+    "xl": { "$value": "20px" },
+    "2xl": { "$value": "24px" },
+    "3xl": { "$value": "30px" }
+  },
+  "fontWeight": {
+    "$type": "fontWeight",
+    "normal": { "$value": 400 },
+    "medium": { "$value": 500 },
+    "semibold": { "$value": 600 },
+    "bold": { "$value": 700 }
+  },
+  "duration": {
+    "$type": "duration",
+    "fast": { "$value": "150ms" },
+    "normal": { "$value": "250ms" },
+    "slow": { "$value": "400ms" }
+  }
+}

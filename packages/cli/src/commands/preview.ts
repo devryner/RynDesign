@@ -1,5 +1,8 @@
 import { defineCommand } from 'citty';
 import pc from 'picocolors';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
 import { loadConfig } from '../config.js';
 
 export default defineCommand({
@@ -34,11 +37,18 @@ export default defineCommand({
 
     let previewModule;
     try {
-      previewModule = await import('@ryndesign/preview');
+      const localRequire = createRequire(path.resolve(process.cwd(), 'package.json'));
+      const previewPath = localRequire.resolve('@ryndesign/preview');
+      previewModule = await import(pathToFileURL(previewPath).href);
     } catch {
-      console.log(pc.yellow('Preview package not found. Install @ryndesign/preview'));
-      console.log(pc.gray('  npm install @ryndesign/preview'));
-      return;
+      // Fallback: try direct import (works when CLI is installed locally)
+      try {
+        previewModule = await import('@ryndesign/preview');
+      } catch {
+        console.log(pc.yellow('Preview package not found. Install @ryndesign/preview'));
+        console.log(pc.gray('  npm install @ryndesign/preview'));
+        return;
+      }
     }
 
     await previewModule.startPreviewServer({

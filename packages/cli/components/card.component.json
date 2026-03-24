@@ -1,0 +1,27 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Card",
+  "category": "layout",
+  "props": {
+    "children": { "type": "node", "required": true }
+  },
+  "variants": {
+    "variant": { "values": ["elevated", "outlined", "filled"], "default": "elevated" },
+    "padding": { "values": ["none", "sm", "md", "lg"], "default": "md" }
+  },
+  "slots": {
+    "header": { "optional": true },
+    "footer": { "optional": true },
+    "media": { "optional": true }
+  },
+  "tokenMapping": {
+    "background": "component.card.{variant}.background",
+    "borderColor": "component.card.{variant}.border",
+    "borderRadius": "component.card.borderRadius",
+    "shadow": "component.card.{variant}.shadow",
+    "padding": "component.card.{padding}.padding"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "shadow": "component.card.{variant}.hover.shadow" } }
+  }
+}

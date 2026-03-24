@@ -28,7 +28,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "templates",
+    "components"
   ],
   "scripts": {
     "build": "tsup",

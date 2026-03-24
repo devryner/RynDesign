@@ -1,0 +1,36 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Input",
+  "category": "forms",
+  "props": {
+    "value": { "type": "string", "required": true },
+    "placeholder": { "type": "string" },
+    "disabled": { "type": "boolean", "default": false },
+    "readOnly": { "type": "boolean", "default": false },
+    "onChange": { "type": "callback" },
+    "onFocus": { "type": "callback" },
+    "onBlur": { "type": "callback" }
+  },
+  "variants": {
+    "variant": { "values": ["default", "filled", "unstyled"], "default": "default" },
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "slots": {
+    "leadingIcon": { "optional": true },
+    "trailingIcon": { "optional": true }
+  },
+  "tokenMapping": {
+    "background": "component.input.{variant}.background",
+    "textColor": "component.input.text",
+    "borderColor": "component.input.{variant}.border",
+    "borderRadius": "component.input.borderRadius",
+    "paddingX": "component.input.{size}.paddingX",
+    "paddingY": "component.input.{size}.paddingY",
+    "fontSize": "component.input.{size}.fontSize"
+  },
+  "states": {
+    "focus": { "tokenOverrides": { "borderColor": "component.input.focus.border" } },
+    "error": { "tokenOverrides": { "borderColor": "component.input.error.border" } },
+    "disabled": { "tokenOverrides": { "background": "component.input.disabled.background" } }
+  }
+}
