@@ -1,5 +1,11 @@
 # @ryndesign/cli
 
+## 0.3.0
+
+### Minor Changes
+
+- Preview enhancement: 28 daisyUI-styled component renderers, 4 example pages (Login, Profile, List, Dashboard), real-time token editing fix, Components/Examples tab switching.
+
 ## 0.2.6
 
 ### Patch Changes
