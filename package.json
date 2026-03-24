@@ -13,6 +13,9 @@
     "test": "turbo run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
+    "validate": "node packages/cli/dist/bin.js validate",
+    "generate": "node packages/cli/dist/bin.js generate",
+    "preview": "node packages/cli/dist/bin.js preview",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build && changeset publish"
