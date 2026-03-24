@@ -1,5 +1,11 @@
 # @ryndesign/cli
 
+## 0.1.3
+
+### Patch Changes
+
+- 9b91911: Fix preview command error handling to show actual errors instead of always showing "not found"
+
 ## 0.1.2
 
 ### Patch Changes
