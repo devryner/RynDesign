@@ -1,6 +1,6 @@
 {
   "name": "@ryndesign/generator-rails",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Rails generator plugin for RynDesign",
   "license": "MIT",
   "repository": {

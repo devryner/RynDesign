@@ -1,6 +1,6 @@
 {
   "name": "@ryndesign/generator-svelte",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Svelte generator plugin for RynDesign",
   "license": "MIT",
   "repository": {
