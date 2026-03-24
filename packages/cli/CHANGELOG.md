@@ -1,5 +1,11 @@
 # @ryndesign/cli
 
+## 0.1.2
+
+### Patch Changes
+
+- 04e3740: Add short flags and missing CLI options: --platform/-p, --config/-c, --watch/-w, --output/-o
+
 ## 0.1.1
 
 ### Patch Changes
