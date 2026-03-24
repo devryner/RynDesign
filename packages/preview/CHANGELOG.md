@@ -1,5 +1,11 @@
 # @ryndesign/preview
 
+## 0.1.4
+
+### Patch Changes
+
+- Fix CLI init to bundle templates/components in npm package, add --dark-mode option and non-interactive mode, default to full template. Fix preview WebSocket conflict with Vite HMR and add port-in-use detection.
+
 ## 0.1.3
 
 ### Patch Changes
