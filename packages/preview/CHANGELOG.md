@@ -1,5 +1,11 @@
 # @ryndesign/preview
 
+## 0.1.3
+
+### Patch Changes
+
+- 77b306e: Fix \_\_dirname not defined error in ESM by enabling tsup shims
+
 ## 0.1.2
 
 ### Patch Changes
