@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Kbd",
+  "category": "display",
+  "props": {
+    "label": { "type": "string", "required": true }
+  },
+  "variants": {
+    "size": { "values": ["xs", "sm", "md", "lg"], "default": "md" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "background": "component.kbd.background",
+    "textColor": "component.kbd.textColor",
+    "borderColor": "component.kbd.borderColor",
+    "borderRadius": "component.kbd.borderRadius",
+    "paddingX": "component.kbd.{size}.paddingX",
+    "paddingY": "component.kbd.{size}.paddingY",
+    "fontSize": "component.kbd.{size}.fontSize"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Progress",
+  "category": "feedback",
+  "props": {
+    "value": { "type": "number", "required": true },
+    "max": { "type": "number", "default": 100 }
+  },
+  "variants": {
+    "variant": { "values": ["primary", "secondary", "accent", "success", "warning", "error"], "default": "primary" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "background": "component.progress.background",
+    "fillColor": "component.progress.{variant}.fillColor",
+    "borderRadius": "component.progress.borderRadius",
+    "height": "component.progress.height"
+  }
+}

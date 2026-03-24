@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Swap",
+  "category": "actions",
+  "props": {
+    "checked": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "variant": { "values": ["rotate", "flip"], "default": "rotate" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "textColor": "component.swap.{variant}.textColor",
+    "fontSize": "component.swap.{variant}.fontSize"
+  }
+}

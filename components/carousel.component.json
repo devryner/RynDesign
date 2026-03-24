@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Carousel",
+  "category": "display",
+  "props": {
+    "items": { "type": "array", "required": true }
+  },
+  "variants": {
+    "variant": { "values": ["default", "snap"], "default": "default" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "background": "component.carousel.{variant}.background",
+    "borderRadius": "component.carousel.borderRadius"
+  }
+}

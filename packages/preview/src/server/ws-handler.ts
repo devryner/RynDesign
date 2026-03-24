@@ -50,6 +50,8 @@ export function setupWsHandler(wss: WebSocketServer, builder: IncrementalBuilder
               type: 'rebuild-complete',
               changedTokens: [update.path],
               timestamp: Date.now(),
+              tokenSet: builder.getTokenSet(),
+              components: builder.getComponents(),
             });
             break;
           }

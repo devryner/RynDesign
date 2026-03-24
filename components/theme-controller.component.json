@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "ThemeController",
+  "category": "actions",
+  "props": {
+    "checked": { "type": "boolean", "default": false }
+  },
+  "variants": {
+    "variant": { "values": ["toggle", "swap"], "default": "toggle" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "trackBackground": "component.theme-controller.{variant}.trackBackground",
+    "trackCheckedBackground": "component.theme-controller.{variant}.trackCheckedBackground",
+    "thumbBackground": "component.theme-controller.{variant}.thumbBackground"
+  }
+}

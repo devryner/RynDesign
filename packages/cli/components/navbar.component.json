@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Navbar",
+  "category": "navigation",
+  "props": {
+    "title": { "type": "string" }
+  },
+  "variants": {},
+  "states": {},
+  "slots": {
+    "start": { "optional": true },
+    "center": { "optional": true },
+    "end": { "optional": true }
+  },
+  "tokenMapping": {
+    "background": "component.navbar.background",
+    "textColor": "component.navbar.textColor",
+    "borderColor": "component.navbar.borderColor",
+    "shadow": "component.navbar.shadow",
+    "paddingX": "component.navbar.paddingX",
+    "paddingY": "component.navbar.paddingY"
+  }
+}

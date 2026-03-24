@@ -6,12 +6,14 @@ import { PreviewPanel } from './components/PreviewPanel';
 import { CodeViewer } from './components/CodeViewer';
 import { TokenEditor } from './components/TokenEditor';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
+import { ExamplePages } from './components/ExamplePages';
 
 export default function App() {
   const [currentTheme, setCurrentTheme] = useState('light');
   const [currentPlatform, setCurrentPlatform] = useState<'react' | 'swiftui'>('react');
   const [selectedComponent, setSelectedComponent] = useState<string | null>(null);
   const [splitView, setSplitView] = useState(false);
+  const [viewMode, setViewMode] = useState<'components' | 'examples'>('components');
 
   const { connected, send, tokenSet, components, snippets, requestSnippets } = useWebSocket();
   const { updateToken } = useTokens(send);
@@ -75,35 +77,59 @@ export default function App() {
       </aside>
 
       <main className="main">
-        <div className="platform-tabs">
-          {(['react', 'swiftui'] as const).map(p => (
+        <div style={{ display: 'flex', gap: 4, marginBottom: 20 }}>
+          <div className="platform-tabs" style={{ marginBottom: 0 }}>
             <button
-              key={p}
-              className={`platform-tab ${p === currentPlatform ? 'active' : ''}`}
-              onClick={() => handlePlatformChange(p)}
+              className={`platform-tab ${viewMode === 'components' ? 'active' : ''}`}
+              onClick={() => setViewMode('components')}
             >
-              {p === 'react' ? 'React' : 'SwiftUI'}
+              Components
             </button>
-          ))}
+            <button
+              className={`platform-tab ${viewMode === 'examples' ? 'active' : ''}`}
+              onClick={() => setViewMode('examples')}
+            >
+              Examples
+            </button>
+          </div>
+          {viewMode === 'components' && (
+            <div className="platform-tabs" style={{ marginBottom: 0, marginLeft: 16 }}>
+              {(['react', 'swiftui'] as const).map(p => (
+                <button
+                  key={p}
+                  className={`platform-tab ${p === currentPlatform ? 'active' : ''}`}
+                  onClick={() => handlePlatformChange(p)}
+                >
+                  {p === 'react' ? 'React' : 'SwiftUI'}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        <PreviewPanel
-          tokenSet={tokenSet}
-          components={components}
-          selectedComponent={selectedComponent}
-          splitView={splitView}
-          currentTheme={currentTheme}
-        />
+        {viewMode === 'components' ? (
+          <>
+            <PreviewPanel
+              tokenSet={tokenSet}
+              components={components}
+              selectedComponent={selectedComponent}
+              splitView={splitView}
+              currentTheme={currentTheme}
+            />
 
-        <div style={{ marginTop: 24 }}>
-          <h3 style={{ fontSize: 14, marginBottom: 12 }}>Generated Code</h3>
-          <CodeViewer
-            snippets={snippets}
-            platform={currentPlatform}
-            component={selectedComponent}
-            tokenSet={tokenSet}
-          />
-        </div>
+            <div style={{ marginTop: 24 }}>
+              <h3 style={{ fontSize: 14, marginBottom: 12 }}>Generated Code</h3>
+              <CodeViewer
+                snippets={snippets}
+                platform={currentPlatform}
+                component={selectedComponent}
+                tokenSet={tokenSet}
+              />
+            </div>
+          </>
+        ) : (
+          <ExamplePages tokenSet={tokenSet} components={components} />
+        )}
       </main>
 
       <footer className="footer">

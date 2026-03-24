@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Stat",
+  "category": "display",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "value": { "type": "string", "required": true },
+    "description": { "type": "string" }
+  },
+  "variants": {
+    "variant": { "values": ["default", "bordered"], "default": "default" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "background": "component.stat.{variant}.background",
+    "textColor": "component.stat.{variant}.textColor",
+    "titleColor": "component.stat.{variant}.titleColor",
+    "descriptionColor": "component.stat.{variant}.descriptionColor",
+    "borderColor": "component.stat.{variant}.borderColor"
+  }
+}

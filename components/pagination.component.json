@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Pagination",
+  "category": "navigation",
+  "props": {
+    "total": { "type": "number", "required": true },
+    "current": { "type": "number", "default": 1 }
+  },
+  "variants": {
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "tokenMapping": {
+    "background": "component.pagination.background",
+    "activeBackground": "component.pagination.activeBackground",
+    "textColor": "component.pagination.textColor",
+    "activeTextColor": "component.pagination.activeTextColor",
+    "borderColor": "component.pagination.borderColor",
+    "borderRadius": "component.pagination.borderRadius"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "background": "component.pagination.hover.background" } },
+    "disabled": { "tokenOverrides": { "background": "component.pagination.disabled.background" } }
+  }
+}

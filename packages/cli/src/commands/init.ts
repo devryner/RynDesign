@@ -168,23 +168,28 @@ export default defineCommand({
     await fs.writeFile(path.join(cwd, 'ryndesign.config.ts'), configContent);
 
     // Copy component templates
-    const componentsToCopy = template === 'full'
-      ? ['button', 'input', 'card', 'checkbox', 'toggle', 'badge', 'avatar']
-      : ['button'];
-
-    for (const comp of componentsToCopy) {
+    if (template === 'full') {
+      // Copy all available component files
       try {
-        const content = await fs.readFile(
-          path.join(componentsDir, `${comp}.component.json`),
-          'utf-8'
-        );
-        await fs.writeFile(
-          path.join(cwd, 'components', `${comp}.component.json`),
-          content
-        );
+        const files = await fs.readdir(componentsDir);
+        for (const file of files) {
+          if (file.endsWith('.component.json')) {
+            const content = await fs.readFile(path.join(componentsDir, file), 'utf-8');
+            await fs.writeFile(path.join(cwd, 'components', file), content);
+          }
+        }
       } catch {
-        // Skip if not found
+        // Fallback: copy button only
+        try {
+          const content = await fs.readFile(path.join(componentsDir, 'button.component.json'), 'utf-8');
+          await fs.writeFile(path.join(cwd, 'components', 'button.component.json'), content);
+        } catch { /* skip */ }
       }
+    } else {
+      try {
+        const content = await fs.readFile(path.join(componentsDir, 'button.component.json'), 'utf-8');
+        await fs.writeFile(path.join(cwd, 'components', 'button.component.json'), content);
+      } catch { /* skip */ }
     }
 
     // Add generated/ to .gitignore

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Table",
+  "category": "display",
+  "props": {
+    "data": { "type": "array", "required": true }
+  },
+  "variants": {
+    "size": { "values": ["sm", "md", "lg"], "default": "md" },
+    "variant": { "values": ["default", "zebra", "compact"], "default": "default" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "background": "component.table.{variant}.background",
+    "headerBackground": "component.table.{variant}.headerBackground",
+    "borderColor": "component.table.{variant}.borderColor",
+    "textColor": "component.table.{variant}.textColor",
+    "fontSize": "component.table.{size}.fontSize",
+    "paddingX": "component.table.{size}.paddingX",
+    "paddingY": "component.table.{size}.paddingY"
+  }
+}

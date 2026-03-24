@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Countdown",
+  "category": "display",
+  "props": {
+    "value": { "type": "number", "required": true }
+  },
+  "variants": {
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "textColor": "component.countdown.textColor",
+    "fontSize": "component.countdown.{size}.fontSize"
+  }
+}

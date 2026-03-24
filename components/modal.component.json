@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Modal",
+  "category": "actions",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "children": { "type": "node" }
+  },
+  "variants": {
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "states": {},
+  "slots": {
+    "header": { "optional": true },
+    "footer": { "optional": true }
+  },
+  "tokenMapping": {
+    "background": "component.modal.background",
+    "borderRadius": "component.modal.borderRadius",
+    "shadow": "component.modal.shadow",
+    "overlayBackground": "component.modal.overlayBackground"
+  }
+}

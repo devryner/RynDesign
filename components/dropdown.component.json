@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Dropdown",
+  "category": "actions",
+  "props": {
+    "items": { "type": "array", "required": true }
+  },
+  "variants": {
+    "variant": { "values": ["default", "hover", "click"], "default": "default" }
+  },
+  "tokenMapping": {
+    "background": "component.dropdown.{variant}.background",
+    "borderColor": "component.dropdown.{variant}.borderColor",
+    "borderRadius": "component.dropdown.borderRadius",
+    "shadow": "component.dropdown.{variant}.shadow"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "background": "component.dropdown.hover.background" } },
+    "open": { "tokenOverrides": { "shadow": "component.dropdown.open.shadow" } }
+  }
+}

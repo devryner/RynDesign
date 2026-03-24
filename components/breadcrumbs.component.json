@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Breadcrumbs",
+  "category": "navigation",
+  "props": {
+    "items": { "type": "array", "required": true }
+  },
+  "variants": {},
+  "tokenMapping": {
+    "textColor": "component.breadcrumbs.textColor",
+    "separatorColor": "component.breadcrumbs.separatorColor",
+    "fontSize": "component.breadcrumbs.fontSize"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "textColor": "component.breadcrumbs.hover.textColor" } }
+  }
+}

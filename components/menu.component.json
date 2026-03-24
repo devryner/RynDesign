@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Menu",
+  "category": "navigation",
+  "props": {
+    "items": { "type": "array", "required": true }
+  },
+  "variants": {
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "tokenMapping": {
+    "background": "component.menu.background",
+    "textColor": "component.menu.textColor",
+    "activeBackground": "component.menu.activeBackground",
+    "activeTextColor": "component.menu.activeTextColor",
+    "borderRadius": "component.menu.borderRadius",
+    "paddingX": "component.menu.{size}.paddingX",
+    "paddingY": "component.menu.{size}.paddingY",
+    "fontSize": "component.menu.{size}.fontSize"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "background": "component.menu.hover.background" } }
+  }
+}

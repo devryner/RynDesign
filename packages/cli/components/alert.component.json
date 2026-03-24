@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Alert",
+  "category": "feedback",
+  "props": {
+    "message": { "type": "string", "required": true }
+  },
+  "variants": {
+    "variant": { "values": ["info", "success", "warning", "error"], "default": "info" }
+  },
+  "states": {},
+  "slots": {
+    "icon": { "optional": true }
+  },
+  "tokenMapping": {
+    "background": "component.alert.{variant}.background",
+    "textColor": "component.alert.{variant}.textColor",
+    "borderColor": "component.alert.{variant}.borderColor",
+    "borderRadius": "component.alert.borderRadius",
+    "paddingX": "component.alert.paddingX",
+    "paddingY": "component.alert.paddingY",
+    "fontSize": "component.alert.fontSize"
+  }
+}

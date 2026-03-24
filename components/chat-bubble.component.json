@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "ChatBubble",
+  "category": "display",
+  "props": {
+    "message": { "type": "string", "required": true },
+    "sender": { "type": "string" }
+  },
+  "variants": {
+    "variant": { "values": ["start", "end"], "default": "start" },
+    "color": { "values": ["default", "primary", "secondary", "accent"], "default": "default" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "background": "component.chat-bubble.{color}.background",
+    "textColor": "component.chat-bubble.{color}.textColor",
+    "borderRadius": "component.chat-bubble.{variant}.borderRadius",
+    "fontSize": "component.chat-bubble.fontSize"
+  }
+}

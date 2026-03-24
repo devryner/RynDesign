@@ -1,0 +1,14 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Loading",
+  "category": "feedback",
+  "variants": {
+    "variant": { "values": ["spinner", "dots", "ring", "ball"], "default": "spinner" },
+    "size": { "values": ["xs", "sm", "md", "lg"], "default": "md" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "primaryColor": "component.loading.{variant}.primaryColor",
+    "size": "component.loading.{size}.size"
+  }
+}

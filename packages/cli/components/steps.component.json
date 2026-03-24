@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Steps",
+  "category": "navigation",
+  "props": {
+    "items": { "type": "array", "required": true },
+    "current": { "type": "number", "default": 0 }
+  },
+  "variants": {
+    "variant": { "values": ["horizontal", "vertical"], "default": "horizontal" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "primaryColor": "component.steps.{variant}.primaryColor",
+    "completedColor": "component.steps.{variant}.completedColor",
+    "textColor": "component.steps.{variant}.textColor",
+    "fontSize": "component.steps.{variant}.fontSize"
+  }
+}

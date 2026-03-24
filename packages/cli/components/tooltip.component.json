@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Tooltip",
+  "category": "feedback",
+  "props": {
+    "text": { "type": "string", "required": true },
+    "children": { "type": "node" }
+  },
+  "variants": {
+    "position": { "values": ["top", "bottom", "left", "right"], "default": "top" }
+  },
+  "states": {},
+  "tokenMapping": {
+    "background": "component.tooltip.background",
+    "textColor": "component.tooltip.textColor",
+    "borderRadius": "component.tooltip.borderRadius",
+    "fontSize": "component.tooltip.fontSize",
+    "paddingX": "component.tooltip.paddingX",
+    "paddingY": "component.tooltip.paddingY"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Accordion",
+  "category": "display",
+  "props": {
+    "title": { "type": "string", "required": true },
+    "children": { "type": "node" }
+  },
+  "variants": {
+    "variant": { "values": ["arrow", "plus"], "default": "arrow" }
+  },
+  "tokenMapping": {
+    "background": "component.accordion.{variant}.background",
+    "borderColor": "component.accordion.{variant}.borderColor",
+    "borderRadius": "component.accordion.borderRadius",
+    "textColor": "component.accordion.{variant}.textColor",
+    "fontSize": "component.accordion.{variant}.fontSize"
+  },
+  "states": {
+    "open": { "tokenOverrides": { "background": "component.accordion.{variant}.open.background" } }
+  }
+}

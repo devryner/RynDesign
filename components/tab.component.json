@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ryndesign.dev/schemas/component.json",
+  "name": "Tab",
+  "category": "navigation",
+  "props": {
+    "items": { "type": "array", "required": true },
+    "active": { "type": "number", "default": 0 }
+  },
+  "variants": {
+    "variant": { "values": ["bordered", "lifted", "boxed"], "default": "bordered" },
+    "size": { "values": ["sm", "md", "lg"], "default": "md" }
+  },
+  "tokenMapping": {
+    "background": "component.tab.{variant}.background",
+    "activeBackground": "component.tab.{variant}.activeBackground",
+    "textColor": "component.tab.{variant}.textColor",
+    "activeTextColor": "component.tab.{variant}.activeTextColor",
+    "borderColor": "component.tab.{variant}.borderColor",
+    "fontSize": "component.tab.{size}.fontSize",
+    "paddingX": "component.tab.{size}.paddingX",
+    "paddingY": "component.tab.{size}.paddingY"
+  },
+  "states": {
+    "hover": { "tokenOverrides": { "background": "component.tab.{variant}.hover.background" } }
+  }
+}
