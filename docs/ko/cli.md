@@ -35,24 +35,29 @@ ryndesign init
 ```
 
 대화형 프롬프트:
-1. 프로젝트 이름 입력
+1. 템플릿 선택 (minimal / full)
 2. 플랫폼 선택 (React, SwiftUI, Vue, Svelte, Rails, Android 등)
-3. 기본 템플릿 선택 (minimal / full)
+3. 다크 모드 지원 여부 (yes / no)
 
 **생성되는 파일:**
 
 ```
-├── ryndesign.config.ts      # 설정 파일
+├── package.json              # 없으면 자동 생성 (devDependencies 포함)
+├── ryndesign.config.ts       # 설정 파일
 ├── tokens/
-│   └── base.tokens.json     # 기본 토큰
+│   ├── base.tokens.json      # 기본 토큰
+│   ├── semantic.tokens.json  # 시맨틱 별칭 토큰
+│   └── dark.tokens.json      # 다크 테마 오버라이드 (활성화 시)
 ├── components/
 │   └── button.component.json # 샘플 컴포넌트
 └── generated/               # 코드 생성 출력 (gitignore됨)
 ```
 
 **추가 작업:**
-- `.gitignore`에 `generated/` 추가
+- `package.json`이 없으면 생성하고, 선택한 generator를 `devDependencies`에 추가
 - `package.json`에 `generate`, `preview` 스크립트 추가
+- `npm install` 자동 실행 (pnpm/yarn/bun 자동 감지)
+- `.gitignore`에 `generated/` 추가
 
 ---
 

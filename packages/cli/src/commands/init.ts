@@ -2,7 +2,9 @@ import { defineCommand } from 'citty';
 import * as p from '@clack/prompts';
 import pc from 'picocolors';
 import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
+import { execSync } from 'node:child_process';
 
 export default defineCommand({
   meta: {
@@ -167,20 +169,50 @@ export default defineCommand({
       // Skip if can't write .gitignore
     }
 
-    // Add scripts to package.json if it exists
+    // Ensure package.json exists, then add scripts and dependencies
+    const pkgJsonPath = path.join(cwd, 'package.json');
+    let pkg: Record<string, unknown>;
     try {
-      const pkgJsonPath = path.join(cwd, 'package.json');
       const pkgContent = await fs.readFile(pkgJsonPath, 'utf-8');
-      const pkg = JSON.parse(pkgContent);
-      if (!pkg.scripts) pkg.scripts = {};
-      if (!pkg.scripts['generate']) pkg.scripts['generate'] = 'ryndesign generate';
-      if (!pkg.scripts['preview']) pkg.scripts['preview'] = 'ryndesign preview';
-      await fs.writeFile(pkgJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+      pkg = JSON.parse(pkgContent);
     } catch {
-      // Skip if no package.json or can't modify
+      // No package.json yet — create one
+      const dirName = path.basename(cwd);
+      pkg = {
+        name: dirName,
+        version: '1.0.0',
+        private: true,
+        type: 'module',
+      };
     }
 
+    if (!pkg.scripts || typeof pkg.scripts !== 'object') pkg.scripts = {};
+    const scripts = pkg.scripts as Record<string, string>;
+    if (!scripts['generate']) scripts['generate'] = 'ryndesign generate';
+    if (!scripts['preview']) scripts['preview'] = 'ryndesign preview';
+
+    // Add generator packages as devDependencies
+    if (!pkg.devDependencies || typeof pkg.devDependencies !== 'object') pkg.devDependencies = {};
+    const devDeps = pkg.devDependencies as Record<string, string>;
+    devDeps['@ryndesign/cli'] = 'latest';
+    for (const platform of platforms) {
+      devDeps[`@ryndesign/generator-${platform}`] = 'latest';
+    }
+
+    await fs.writeFile(pkgJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+
     s.stop('Project files created!');
+
+    // Install dependencies
+    const installSpinner = p.spinner();
+    installSpinner.start('Installing dependencies...');
+    try {
+      const pm = detectPackageManager(cwd);
+      execSync(`${pm} install`, { cwd, stdio: 'pipe' });
+      installSpinner.stop('Dependencies installed!');
+    } catch {
+      installSpinner.stop(pc.yellow('Could not auto-install. Run `npm install` manually.'));
+    }
 
     p.note(
       [
@@ -291,4 +323,19 @@ function getDarkTokens() {
       },
     },
   };
+}
+
+function detectPackageManager(cwd: string): string {
+  try {
+    const userAgent = process.env.npm_config_user_agent || '';
+    if (userAgent.startsWith('pnpm')) return 'pnpm';
+    if (userAgent.startsWith('yarn')) return 'yarn';
+    if (userAgent.startsWith('bun')) return 'bun';
+  } catch {}
+
+  // Check for lock files
+  if (existsSync(path.join(cwd, 'pnpm-lock.yaml'))) return 'pnpm';
+  if (existsSync(path.join(cwd, 'yarn.lock'))) return 'yarn';
+  if (existsSync(path.join(cwd, 'bun.lockb'))) return 'bun';
+  return 'npm';
 }

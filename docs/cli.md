@@ -37,24 +37,29 @@ ryndesign init
 ```
 
 Interactive prompts:
-1. Project name
+1. Template selection (minimal / full)
 2. Platform selection (React, SwiftUI, Vue, Svelte, Rails, Android, etc.)
-3. Template selection (minimal / full)
+3. Dark mode support (yes / no)
 
 **Generated Files:**
 
 ```
-├── ryndesign.config.ts      # Configuration file
+├── package.json              # Created if missing (devDependencies included)
+├── ryndesign.config.ts       # Configuration file
 ├── tokens/
-│   └── base.tokens.json     # Base tokens
+│   ├── base.tokens.json      # Base tokens
+│   ├── semantic.tokens.json  # Semantic alias tokens
+│   └── dark.tokens.json      # Dark theme overrides (if enabled)
 ├── components/
 │   └── button.component.json # Sample component
-└── generated/               # Code generation output (gitignored)
+└── generated/                # Code generation output (gitignored)
 ```
 
 **Additional actions:**
-- Adds `generated/` to `.gitignore`
+- Creates `package.json` with selected generators as `devDependencies` (if not already present)
 - Adds `generate` and `preview` scripts to `package.json`
+- Runs `npm install` (or pnpm/yarn/bun, auto-detected) to install dependencies
+- Adds `generated/` to `.gitignore`
 
 ---
 
