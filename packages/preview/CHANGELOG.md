@@ -1,5 +1,11 @@
 # @ryndesign/preview
 
+## 0.1.2
+
+### Patch Changes
+
+- 4eae698: Fix preview server build: externalize vite, fix dependencies for npm install
+
 ## 0.1.1
 
 ### Patch Changes
