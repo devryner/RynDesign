@@ -1,16 +1,16 @@
 {
   "name": "@ryndesign/cli",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "CLI for RynDesign design system generator",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/devryner/RynDesign.git",
+    "url": "git+https://github.com/devryner/RynDesign.git",
     "directory": "packages/cli"
   },
   "type": "module",
   "bin": {
-    "ryndesign": "./dist/bin.js"
+    "ryndesign": "dist/bin.js"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
