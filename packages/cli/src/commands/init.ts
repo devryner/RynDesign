@@ -281,6 +281,9 @@ function getDefaultTokens() {
       black: { $value: '#000000' },
       gray: {
         50: { $value: '#F9FAFB' },
+        100: { $value: '#F3F4F6' },
+        400: { $value: '#9CA3AF' },
+        800: { $value: '#1F2937' },
         900: { $value: '#111827' },
       },
     },
