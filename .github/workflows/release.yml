@@ -8,7 +8,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
-    if: github.repository == 'ryndesign/ryndesign'
+    if: github.repository == 'devryner/RynDesign'
     runs-on: ubuntu-latest
     permissions:
       contents: write

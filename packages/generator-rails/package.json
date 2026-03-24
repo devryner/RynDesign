@@ -2,6 +2,12 @@
   "name": "@ryndesign/generator-rails",
   "version": "0.1.0",
   "description": "Rails generator plugin for RynDesign",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devryner/RynDesign.git",
+    "directory": "packages/generator-rails"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

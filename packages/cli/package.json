@@ -2,6 +2,12 @@
   "name": "@ryndesign/cli",
   "version": "0.1.0",
   "description": "CLI for RynDesign design system generator",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devryner/RynDesign.git",
+    "directory": "packages/cli"
+  },
   "type": "module",
   "bin": {
     "ryndesign": "./dist/bin.js"
@@ -11,11 +17,19 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
-      "require": { "types": "./dist/index.d.cts", "default": "./dist/index.cjs" }
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
