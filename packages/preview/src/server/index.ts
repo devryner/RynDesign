@@ -13,6 +13,7 @@ export interface PreviewServerOptions {
   port?: number;
   open?: boolean;
   configPath?: string;
+  generators?: unknown[];
 }
 
 function isPortInUse(port: number): Promise<boolean> {
@@ -82,6 +83,9 @@ export async function startPreviewServer(options: PreviewServerOptions = {}): Pr
 
   // Initialize incremental builder
   const builder = new IncrementalBuilder(cwd, options.configPath);
+  if (options.generators && options.generators.length > 0) {
+    builder.setGenerators(options.generators as import('@ryndesign/plugin-api').GeneratorPlugin[]);
+  }
   await builder.initialBuild();
 
   // Create HTTP server

@@ -54,6 +54,7 @@ export default defineCommand({
     await previewModule.startPreviewServer({
       port,
       open: args.open as boolean,
+      generators: config?.generators ?? [],
     });
   },
 });
