@@ -1,6 +1,6 @@
 {
   "name": "@ryndesign/generator-tailwind",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tailwind CSS config generator plugin for RynDesign",
   "license": "MIT",
   "repository": {

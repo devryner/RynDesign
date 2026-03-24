@@ -1,6 +1,6 @@
 {
   "name": "@ryndesign/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI for RynDesign design system generator",
   "license": "MIT",
   "repository": {
