@@ -1,5 +1,8 @@
 # RynDesign
 
+[![npm version](https://img.shields.io/npm/v/@ryndesign/core)](https://www.npmjs.com/package/@ryndesign/core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 하나의 디자인 토큰 소스에서 멀티 플랫폼 코드를 생성하는 디자인 시스템 생성기.
 
 W3C Design Token 스펙(JSON)으로 토큰을 정의하면, React, SwiftUI 등 각 플랫폼에 맞는 코드를 자동 생성합니다.
@@ -78,8 +81,8 @@ ryndesign preview
 
 ```typescript
 import { defineConfig } from '@ryndesign/cli';
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
+import react from '@ryndesign/generator-react';
+import swiftui from '@ryndesign/generator-swiftui';
 
 export default defineConfig({
   // 토큰 파일 경로 (glob 패턴, 필수)
@@ -99,8 +102,8 @@ export default defineConfig({
 
   // 제너레이터 목록
   generators: [
-    reactGenerator({ typescript: true, darkMode: 'media+class' }),
-    swiftuiGenerator({ darkMode: 'dynamic-color' }),
+    react({ typescript: true, darkMode: 'media+class' }),
+    swiftui({ darkMode: 'dynamic-color' }),
   ],
 
   // Figma 연동 설정
@@ -390,17 +393,17 @@ ryndesign eject react         # React 제너레이터 코드를 ./generators/rea
 ### 사용 예시
 
 ```typescript
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
-import { cssGenerator } from '@ryndesign/generator-css';
-import { tailwindGenerator } from '@ryndesign/generator-tailwind';
+import react from '@ryndesign/generator-react';
+import swiftui from '@ryndesign/generator-swiftui';
+import css from '@ryndesign/generator-css';
+import tailwind from '@ryndesign/generator-tailwind';
 
 export default defineConfig({
   generators: [
-    reactGenerator({ typescript: true, darkMode: 'media+class' }),
-    swiftuiGenerator({ darkMode: 'dynamic-color' }),
-    cssGenerator({ scss: true, prefix: 'ds' }),
-    tailwindGenerator({ configFormat: 'ts' }),
+    react({ typescript: true, darkMode: 'media+class' }),
+    swiftui({ darkMode: 'dynamic-color' }),
+    css({ scss: true, prefix: 'ds' }),
+    tailwind({ configFormat: 'ts' }),
   ],
 });
 ```
@@ -484,6 +487,15 @@ pnpm test
 
 # 개발 모드 (watch)
 pnpm dev
+
+# 토큰 검증
+pnpm validate
+
+# 코드 생성
+pnpm generate
+
+# 프리뷰 서버 실행
+pnpm preview
 ```
 
 ## 라이선스

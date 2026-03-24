@@ -1,5 +1,8 @@
 # RynDesign
 
+[![npm version](https://img.shields.io/npm/v/@ryndesign/core)](https://www.npmjs.com/package/@ryndesign/core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 A multi-platform design system generator that produces platform-specific code from a single W3C Design Token source.
 
 Define your tokens in JSON following the W3C Design Token spec, and RynDesign automatically generates code for React, SwiftUI, Android, and more.
@@ -78,8 +81,8 @@ Create `ryndesign.config.ts` (or `.js`, `.mjs`, `.json`) in your project root.
 
 ```typescript
 import { defineConfig } from '@ryndesign/cli';
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
+import react from '@ryndesign/generator-react';
+import swiftui from '@ryndesign/generator-swiftui';
 
 export default defineConfig({
   // Token file paths (glob patterns, required)
@@ -99,8 +102,8 @@ export default defineConfig({
 
   // Generator plugins
   generators: [
-    reactGenerator({ typescript: true, darkMode: 'media+class' }),
-    swiftuiGenerator({ darkMode: 'dynamic-color' }),
+    react({ typescript: true, darkMode: 'media+class' }),
+    swiftui({ darkMode: 'dynamic-color' }),
   ],
 
   // Figma integration
@@ -378,17 +381,17 @@ ryndesign eject react         # Copies React generator to ./generators/react/
 ### Usage Example
 
 ```typescript
-import { reactGenerator } from '@ryndesign/generator-react';
-import { swiftuiGenerator } from '@ryndesign/generator-swiftui';
-import { cssGenerator } from '@ryndesign/generator-css';
-import { tailwindGenerator } from '@ryndesign/generator-tailwind';
+import react from '@ryndesign/generator-react';
+import swiftui from '@ryndesign/generator-swiftui';
+import css from '@ryndesign/generator-css';
+import tailwind from '@ryndesign/generator-tailwind';
 
 export default defineConfig({
   generators: [
-    reactGenerator({ typescript: true, darkMode: 'media+class' }),
-    swiftuiGenerator({ darkMode: 'dynamic-color' }),
-    cssGenerator({ scss: true, prefix: 'ds' }),
-    tailwindGenerator({ configFormat: 'ts' }),
+    react({ typescript: true, darkMode: 'media+class' }),
+    swiftui({ darkMode: 'dynamic-color' }),
+    css({ scss: true, prefix: 'ds' }),
+    tailwind({ configFormat: 'ts' }),
   ],
 });
 ```
@@ -472,6 +475,15 @@ pnpm test
 
 # Development mode (watch)
 pnpm dev
+
+# Validate tokens
+pnpm validate
+
+# Generate code
+pnpm generate
+
+# Start preview server
+pnpm preview
 ```
 
 ## License
