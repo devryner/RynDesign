@@ -2,6 +2,7 @@ import type { RynDesignConfig } from '@ryndesign/plugin-api';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 const CONFIG_NAMES = [
   'ryndesign.config.ts',
@@ -92,21 +93,96 @@ function validateConfig(config: RynDesignConfig, filePath: string): RynDesignCon
   return config;
 }
 
+function getCliRoot(): string {
+  if (typeof __dirname !== 'undefined') {
+    return path.resolve(__dirname, '..');
+  }
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+}
+
+async function resolvePackageEntry(pkgDir: string): Promise<string> {
+  const pkgJsonPath = path.join(pkgDir, 'package.json');
+  try {
+    const content = await fs.readFile(pkgJsonPath, 'utf-8');
+    const pkg = JSON.parse(content) as {
+      exports?: { '.'?: { import?: { default?: string } | string } | string };
+      module?: string;
+    };
+    // Prefer exports["."].import.default, then module field, then directory itself
+    const exportsEntry = pkg.exports?.['.'];
+    if (typeof exportsEntry === 'object' && exportsEntry !== null) {
+      const importEntry = (exportsEntry as { import?: { default?: string } | string }).import;
+      if (typeof importEntry === 'string') {
+        return path.join(pkgDir, importEntry);
+      }
+      if (typeof importEntry === 'object' && importEntry?.default) {
+        return path.join(pkgDir, importEntry.default);
+      }
+    }
+    if (pkg.module) {
+      return path.join(pkgDir, pkg.module);
+    }
+  } catch {
+    // fall through
+  }
+  return pkgDir;
+}
+
+async function scanRyndesignPackages(dir: string, alias: Record<string, string>): Promise<void> {
+  try {
+    const entries = await fs.readdir(dir);
+    for (const entry of entries) {
+      if (alias[`@ryndesign/${entry}`]) continue; // already found
+      const pkgDir = path.join(dir, entry);
+      const pkgJsonPath = path.join(pkgDir, 'package.json');
+      try {
+        await fs.access(pkgJsonPath);
+        alias[`@ryndesign/${entry}`] = await resolvePackageEntry(pkgDir);
+      } catch {
+        // Not a valid package, skip
+      }
+    }
+  } catch {
+    // Directory not found, skip
+  }
+}
+
 async function resolveCliPackageAlias(): Promise<Record<string, string>> {
   const alias: Record<string, string> = {};
   try {
-    const cliRequire = createRequire(import.meta.url);
-    const pluginApiPkg = cliRequire.resolve('@ryndesign/plugin-api/package.json');
-    const ryndesignDir = path.resolve(path.dirname(pluginApiPkg), '..');
+    const cliRoot = getCliRoot();
+    alias['@ryndesign/cli'] = await resolvePackageEntry(cliRoot);
 
-    const entries = await fs.readdir(ryndesignDir);
-    for (const entry of entries) {
-      const pkgJsonPath = path.join(ryndesignDir, entry, 'package.json');
+    // 1. CLI's own node_modules/@ryndesign/ (direct dependencies)
+    await scanRyndesignPackages(path.join(cliRoot, 'node_modules', '@ryndesign'), alias);
+
+    // 2. Global sibling packages: when CLI is at node_modules/@ryndesign/cli,
+    //    other generators may be at node_modules/@ryndesign/generator-*
+    const parentScope = path.resolve(cliRoot, '..');
+    const parentScopeName = path.basename(parentScope);
+    if (parentScopeName === '@ryndesign') {
+      await scanRyndesignPackages(parentScope, alias);
+    }
+
+    // 3. Monorepo: when CLI is at packages/cli, sibling packages are at packages/generator-*
+    //    Read each sibling's package.json to check if it's a @ryndesign/* package
+    if (parentScopeName !== '@ryndesign') {
       try {
-        await fs.access(pkgJsonPath);
-        alias[`@ryndesign/${entry}`] = path.join(ryndesignDir, entry);
+        const siblings = await fs.readdir(parentScope);
+        for (const sibling of siblings) {
+          const siblingPkgPath = path.join(parentScope, sibling, 'package.json');
+          try {
+            const content = await fs.readFile(siblingPkgPath, 'utf-8');
+            const pkg = JSON.parse(content) as { name?: string };
+            if (pkg.name?.startsWith('@ryndesign/') && !alias[pkg.name]) {
+              alias[pkg.name] = await resolvePackageEntry(path.join(parentScope, sibling));
+            }
+          } catch {
+            // skip
+          }
+        }
       } catch {
-        // Not a valid package, skip
+        // skip
       }
     }
   } catch {

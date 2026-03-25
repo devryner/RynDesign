@@ -1,8 +1,9 @@
 import { defineCommand } from 'citty';
 import pc from 'picocolors';
 import { createRequire } from 'node:module';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
+import fs from 'node:fs';
 import { loadConfig } from '../config.js';
 
 export default defineCommand({
@@ -41,13 +42,34 @@ export default defineCommand({
       const previewPath = localRequire.resolve('@ryndesign/preview');
       previewModule = await import(pathToFileURL(previewPath).href);
     } catch {
-      // Fallback: try direct import (works when CLI is installed locally)
+      // Fallback: try resolving from CLI's own location (global install / monorepo)
       try {
-        previewModule = await import('@ryndesign/preview');
+        const cliRoot = typeof __dirname !== 'undefined'
+          ? path.resolve(__dirname, '..')
+          : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+        const cliRequire = createRequire(path.join(cliRoot, 'package.json'));
+        const previewPath = cliRequire.resolve('@ryndesign/preview');
+        previewModule = await import(pathToFileURL(previewPath).href);
       } catch {
-        console.log(pc.yellow('Preview package not found. Install @ryndesign/preview'));
-        console.log(pc.gray('  npm install @ryndesign/preview'));
-        return;
+        // Fallback: try monorepo sibling package
+        try {
+          const cliRoot = typeof __dirname !== 'undefined'
+            ? path.resolve(__dirname, '..')
+            : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+          const siblingPreview = path.resolve(cliRoot, '..', 'preview');
+          const pkgJson = path.join(siblingPreview, 'package.json');
+          if (fs.existsSync(pkgJson)) {
+            const pkg = JSON.parse(fs.readFileSync(pkgJson, 'utf-8'));
+            const entryFile = pkg.exports?.['.']?.import?.default ?? pkg.module ?? 'dist/index.js';
+            previewModule = await import(pathToFileURL(path.join(siblingPreview, entryFile)).href);
+          } else {
+            throw new Error('not found');
+          }
+        } catch {
+          console.log(pc.yellow('Preview package not found. Install @ryndesign/preview'));
+          console.log(pc.gray('  npm install @ryndesign/preview'));
+          return;
+        }
       }
     }
 

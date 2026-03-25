@@ -17,6 +17,12 @@ export async function loadComponents(
     try {
       const content = await fs.readFile(file, 'utf-8');
       const def = JSON.parse(content) as ComponentDefinition;
+      // Ensure optional fields have defaults so generators don't need null-checks
+      def.props ??= {};
+      def.variants ??= {};
+      def.slots ??= {};
+      def.states ??= {};
+      def.tokenMapping ??= {};
       components.push(def);
     } catch (err) {
       if (err instanceof SyntaxError) {
