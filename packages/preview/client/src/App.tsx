@@ -29,8 +29,8 @@ export default function App() {
   }, [updateToken, currentTheme]);
 
   const handleComponentSelect = useCallback((name: string) => {
-    setSelectedComponent(name);
-    requestSnippets(currentPlatform, name);
+    setSelectedComponent(name || null);
+    if (name) requestSnippets(currentPlatform, name);
   }, [currentPlatform, requestSnippets]);
 
   const handlePlatformChange = useCallback((platform: 'react' | 'swiftui') => {

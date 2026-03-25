@@ -1,5 +1,13 @@
 # @ryndesign/preview
 
+## 0.3.0
+
+### Minor Changes
+
+- feat: Material Design 3 기반 프리뷰 컴포넌트 전면 재설계
+
+  5개 카테고리(Actions, Communication, Containment, Data Input, Navigation), 29개 인터랙티브 컴포넌트로 교체
+
 ## 0.2.1
 
 ### Patch Changes
