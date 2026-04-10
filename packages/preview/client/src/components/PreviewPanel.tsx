@@ -5,7 +5,7 @@ interface Props {
   tokenSet: any;
   components: any[];
   selectedComponent: string | null;
-  splitView: boolean;
+  onSelectComponent: (id: string) => void;
   currentTheme: string;
 }
 
@@ -1309,41 +1309,88 @@ function ComponentPreview({ comp, c }: { comp: ComponentDef; c: Colors }) {
   );
 }
 
-export function PreviewPanel({ tokenSet, components, selectedComponent, splitView, currentTheme }: Props) {
+export function PreviewPanel({ tokenSet, selectedComponent, onSelectComponent, currentTheme }: Props) {
   const tokens = tokenSet?.tokens ?? [];
   const categories = buildCategories();
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  if (!tokenSet) return <p>Loading...</p>;
+  if (!tokenSet) return <p style={{ color: 'var(--text-secondary)', padding: 20 }}>Loading...</p>;
 
   const c = getThemeColors(tokens);
 
-  // Find selected component
-  if (selectedComponent) {
-    for (const cat of categories) {
-      const comp = cat.components.find(co => co.id === selectedComponent);
-      if (comp) {
-        if (splitView) {
-          const darkTokens = tokenSet.themes?.themes?.dark?.tokens ?? tokens;
-          const cDark = getThemeColors(darkTokens);
-          return (
-            <div className="split-view">
-              <div className="split-pane"><h4>Light</h4><ComponentPreview comp={comp} c={c} /></div>
-              <div className="split-pane" style={{ background: '#1a1a2e', color: '#e5e5e5' }}>
-                <h4>Dark</h4><ComponentPreview comp={comp} c={cDark} /></div>
-            </div>
-          );
-        }
-        return <ComponentPreview comp={comp} c={c} />;
-      }
-    }
-  }
+  // All components flat list
+  const allComponents = categories.flatMap(cat => cat.components);
 
-  // Default: show all categories
+  // Filter by category
+  const visibleCategories = activeCategory
+    ? categories.filter(cat => cat.id === activeCategory)
+    : categories;
+
   return (
     <div>
-      {categories.map(cat => (
+      {/* Component Selector */}
+      <div style={{ marginBottom: 20 }}>
+        {/* Category Chips */}
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+          <button
+            onClick={() => { setActiveCategory(null); onSelectComponent(''); }}
+            style={{
+              padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 500,
+              background: !activeCategory && !selectedComponent ? 'var(--accent)' : 'var(--bg-secondary)',
+              color: !activeCategory && !selectedComponent ? '#fff' : 'var(--text-secondary)',
+              border: '1px solid var(--border-color)', cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >All</button>
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => { setActiveCategory(activeCategory === cat.id ? null : cat.id); onSelectComponent(''); }}
+              style={{
+                padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 500,
+                background: activeCategory === cat.id ? 'var(--accent)' : 'var(--bg-secondary)',
+                color: activeCategory === cat.id ? '#fff' : 'var(--text-secondary)',
+                border: '1px solid var(--border-color)', cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >{cat.name}</button>
+          ))}
+        </div>
+
+        {/* Component Chips (shown when a category is active) */}
+        {activeCategory && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {categories.find(cat => cat.id === activeCategory)?.components.map(comp => (
+              <button
+                key={comp.id}
+                onClick={() => onSelectComponent(selectedComponent === comp.id ? '' : comp.id)}
+                style={{
+                  padding: '4px 12px', borderRadius: 99, fontSize: 11, fontWeight: 500,
+                  background: selectedComponent === comp.id ? c.primary : 'transparent',
+                  color: selectedComponent === comp.id ? c.primaryContent : 'var(--text-primary)',
+                  border: `1px solid ${selectedComponent === comp.id ? c.primary : 'var(--border-color)'}`,
+                  cursor: 'pointer', transition: 'all 0.15s ease',
+                }}
+              >{comp.name}</button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Selected Single Component */}
+      {selectedComponent && (() => {
+        const comp = allComponents.find(co => co.id === selectedComponent);
+        if (!comp) return null;
+        return <ComponentPreview comp={comp} c={c} />;
+      })()}
+
+      {/* Category View */}
+      {!selectedComponent && visibleCategories.map(cat => (
         <div key={cat.id} style={{ marginBottom: 32 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary)', borderBottom: `2px solid ${c.primary}`, paddingBottom: 8, display: 'inline-block' }}>{cat.name}</h2>
+          <h2 style={{
+            fontSize: 18, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary)',
+            borderBottom: `2px solid ${c.primary}`, paddingBottom: 8, display: 'inline-block',
+          }}>{cat.name}</h2>
           {cat.components.map(comp => (
             <ComponentPreview key={comp.id} comp={comp} c={c} />
           ))}
